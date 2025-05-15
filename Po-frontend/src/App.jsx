@@ -34,7 +34,7 @@ import HomePurchaseAdmin from "./pages/adminpurchase/home/Home.jsx";
 import InvoiceCreate from "./pages/adminpurchase/invoice/invoicecreate/InvoiceCreate.jsx";
 import GetInvoice from "./pages/adminpurchase/invoice/getInvoice/GetInvoice.jsx";
 import ViewInvoice from "./pages/adminpurchase/invoice/viewinvoice/ViewInvoice.jsx";
-import EditInvoice from "./pages/adminpurchase/invoice/editInvoice/editInvoice.jsx";
+import EditInvoice from "./pages/adminpurchase/invoice/editInvoice/EditInvoice.jsx";
 import CreatepartnerP from "./pages/adminpurchase/partner/createpartner/Createpartner.jsx";
 import EditPartnerP from "./pages/adminpurchase/partner/editpartner/EditPartner.jsx";
 import GetPartnerP from "./pages/adminpurchase/partner/get-all-partner/GetPartner.jsx";
