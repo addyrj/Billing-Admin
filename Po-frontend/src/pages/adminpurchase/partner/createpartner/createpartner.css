@@ -1,0 +1,120 @@
+/* Main container */
+.partner-form-container_3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  background-color: #3B3B3B;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Form card */
+.partner-form-card_3 {
+  background-color: #4A4A4A;
+  border-radius: 10px;
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Form title */
+.partner-form-title {
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+  border-bottom: 2px solid #0087a8;
+  padding-bottom: 10px;
+}
+
+/* Form group */
+.partner-form-group {
+  margin-bottom: 20px;
+}
+
+/* Input fields */
+.partner-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background-color: #3B3B3B;
+  color: #ffffff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.partner-input:focus {
+  outline: none;
+  border-color: #0087a8;
+  box-shadow: 0 0 0 2px rgba(0, 135, 168, 0.3);
+}
+
+.partner-input::placeholder {
+  color: #B2B2B2;
+}
+
+/* Button container */
+.partner-button-container {
+  margin-top: 25px;
+  text-align: center;
+}
+
+/* Submit button */
+.partner-submit-button {
+  background-color: #0087a8;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.partner-submit-button:hover {
+  background-color: #006a84;
+  transform: translateY(-2px);
+}
+
+/* Messages */
+.partner-error-message {
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.partner-success-message {
+  color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Loading state */
+.partner-loading {
+  color: #B2B2B2;
+  text-align: center;
+  padding: 30px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .partner-form-card {
+    padding: 20px;
+  }
+  
+  .partner-form-title {
+    font-size: 20px;
+  }
+}

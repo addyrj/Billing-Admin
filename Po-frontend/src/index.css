@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  img {
+    @apply inline-block;
+  }
+  html {
+    @apply font-serif;
+  }
+  body::-webkit-scrollbar {
+    display: none;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+      background-color: #FFFFFF;
+      background-color: #177e89;
+      
+        /* background-color: #a1a1a1; */
+  
+        /* background-color: #141d2c; */
+  }
+}
+
+
+

@@ -1,0 +1,29 @@
+.homeSales {
+  width: 100%;
+  background-color: #f5f9fa;
+
+  min-height: 100vh;
+  display: flex;
+  padding: 0px;
+  gap: 10px;
+}
+
+.homeSalesContainer {
+  flex: 7;
+  background-color: #b2c8cb;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 10px;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .homeSales {
+    
+    padding: 2px;
+    gap: 3px;
+  }
+  .homeSalesContainer {
+    padding: 2px;
+  }
+}

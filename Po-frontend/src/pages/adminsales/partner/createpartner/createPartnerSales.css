@@ -1,0 +1,158 @@
+.sales-container2 {
+    background-color: #004953;
+    min-height: calc(100vh - 100px);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  .sales-form-container2 {
+    background-color: #195b64;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+    padding: 15px;
+    border: 1px solid #00a3c6;
+    color: #e0f2f3;
+  }
+  
+  .sales-form-header2 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    position: relative;
+  }
+  
+  .back-button {
+    background-color: #00a3c6;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .back-button:hover {
+    background-color: #0087a8;
+    transform: translateX(-2px);
+  }
+  
+  .sales-form-title {
+    color: white;
+    font-size: 24px;
+    margin: 0 auto;
+    text-align: center;
+    flex: 1;
+  }
+  
+  .message {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    text-align: center;
+  }
+  
+  .message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+  }
+  
+  .message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+  }
+  
+  .sales-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* .form-group21 {
+    display: flex;
+    flex-direction: column;
+ 
+    gap: 8px;
+  } */
+  
+  /* .form-group21 label {
+    font-weight: 500;
+    color: #b2c8cb;
+    font-size: 15px;
+  } */
+  
+  .form-group21 input {
+    padding: 12px 15px;
+    border: 1px solid #00a3c6;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: #0d3a42;
+    color: white;
+  }
+  
+  .form-group21 input:disabled {
+    background-color: #1a4a54;
+    color: #b2c8cb;
+    cursor: not-allowed;
+  }
+  
+  .form-group21 input:focus {
+    outline: none;
+    border-color: #b2c8cb;
+    box-shadow: 0 0 0 2px rgba(178, 200, 203, 0.3);
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .submit-button {
+    padding: 12px 24px;
+    background-color: #00a3c6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .submit-button:hover {
+    background-color: #0087a8;
+    transform: translateY(-1px);
+  }
+  
+  .submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  @media (max-width: 768px) {
+    .sales-container2 {
+      padding: 7px;
+    }
+    
+    .sales-form-container2 {
+      padding: 20px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .sales-form-title {
+      font-size: 20px;
+    }
+  }

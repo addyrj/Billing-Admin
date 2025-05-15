@@ -1,0 +1,202 @@
+/* Main Navbar Styles */
+.navbar {
+  width: 100%;
+  background-color: #004953; 
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+/* Top Section (Logo and Title) */
+.navbar-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-logo {
+  height: 40px;
+  display: none;
+}
+
+.navbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); */
+  margin: 0;
+}
+
+/* Buttons Section */
+.navbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.primary {
+  background-color: #0087a8;
+}
+
+.primary:hover {
+  background-color: #006d8a;
+}
+
+.secondary {
+  background-color: #0087a8;
+}
+
+.secondary:hover {
+  background-color: #006d8a;
+}
+
+.icon {
+  font-size: 18px;
+}
+
+.button-text {
+  white-space: nowrap;
+}
+
+/* Right Section (Profile) */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome-message {
+  color: #b2c8cb;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.profile {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar {
+  font-size: 36px;
+  color: #0087a8;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: #1e2838;
+  border: 1px solid #07a6c9;
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.dropdown-icon {
+  color: #07a6c9;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 992px) {
+  .navbar-title {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .navbar-logo {
+    display: block;
+    margin-left: 36px;
+    height: 35px;
+  }
+
+  .navbar-title {
+    font-size: 14px;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .navbar-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar-right {
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .navbar {
+    padding: 15px;
+  }
+
+  .navbar-title {
+    font-size: 14px;
+  }
+
+  .btn {
+    font-size: 12px;
+  }
+
+  .welcome-message {
+    font-size: 13px;
+  }
+}

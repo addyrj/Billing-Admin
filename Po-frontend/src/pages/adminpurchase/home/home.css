@@ -1,0 +1,28 @@
+.homepurchase {
+
+  width: 100%;
+  background-color: #f5f5f5; 
+  min-height: 100vh;
+  display: flex;
+  padding: 0px;
+  gap: 10px;
+}
+
+.homecontainerpurchase {
+  flex: 7;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 10px;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .homepurchase{
+    padding: 10px;
+    gap: 10px;
+  }
+  .homecontainerpurchase {
+    padding: 10px;
+  }
+}

@@ -1,0 +1,173 @@
+/* Sidebar Container */
+.userpurchase-sidebar {
+  background-color: #3B3B3B;
+  color: white;
+  flex: 1.5;
+  min-height: calc(100vh - 60px);
+  transition: transform 0.3s ease;
+  border-radius: 12px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Top Section with Logo */
+.userpurchase-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px 15px;
+}
+
+.userpurchase-logo-container {
+  width: 80%;
+  margin-bottom: 15px;
+}
+
+.userpurchase-logo-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.userpurchase-divider {
+  width: 90%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 10px 0;
+}
+
+/* Center Menu Section */
+.userpurchase-center {
+  padding: 0 10px;
+}
+
+.userpurchase-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #B2B2B2;
+  margin: 20px 0 10px 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.userpurchase-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.userpurchase-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  border-radius: 6px;
+  margin: 4px 0;
+  transition: all 0.2s ease;
+  color: #ffffff;
+}
+
+.userpurchase-menu-item:hover {
+  background-color: #4A4A4A;
+  transform: translateX(3px);
+}
+
+.userpurchase-menu-item.active {
+  background-color: #0087a8;
+  color: white;
+}
+
+.userpurchase-menu-icon {
+  margin-right: 12px;
+  font-size: 20px;
+  color: #B2B2B2;
+}
+
+.userpurchase-menu-item.active .userpurchase-menu-icon,
+.userpurchase-menu-item:hover .userpurchase-menu-icon {
+  color: white;
+}
+
+.userpurchase-menu-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Submenu Items */
+.userpurchase-submenu-item {
+  padding: 10px 15px 10px 50px;
+  background-color: rgba(59, 59, 59, 0.7);
+  margin-left: 10px;
+  border-left: 2px solid #0087a8;
+  font-size: 13px;
+}
+
+.userpurchase-submenu-item:hover {
+  background-color: #4A4A4A;
+}
+
+/* Sidebar Toggle Button */
+.userpurchase-sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #0087a8;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.userpurchase-sidebar-toggle:hover {
+  background-color: #006a84;
+}
+
+/* Overlay for mobile */
+.userpurchase-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+
+.userpurchase-sidebar-overlay.show {
+  display: block;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .userpurchase-sidebar {
+    position: fixed;
+    width: 250px;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+
+  .userpurchase-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .userpurchase-sidebar-toggle {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .userpurchase-sidebar-toggle {
+    display: none;
+  }
+  
+  .userpurchase-sidebar-overlay {
+    display: none !important;
+  }
+}

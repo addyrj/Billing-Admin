@@ -1,0 +1,277 @@
+.sales-container2 {
+  background-color: #004953; /* Using your navbar/sidebar color for the page background */
+  min-height: calc(100vh - 100px);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.sales-form-container2 {
+  background-color: #195b64; /* Darker teal that complements #004953 */
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 800px;
+  padding: 25px;
+  border: 1px solid #00a3c6; /* Using your brand color for border */
+  color: #e0f2f3; /* Light text color for contrast */
+}
+
+/* Header styles */
+.sales-form-header2 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.back-button {
+  background-color: #00a3c6; /* Brand color */
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button:hover {
+  background-color: #0087a8; /* Darker shade of brand color */
+  transform: translateX(-2px);
+}
+
+.sales-form-title {
+  color: white;
+  font-size: 24px;
+  margin: 0 auto;
+  text-align: center;
+  flex: 1;
+}
+
+/* Message styles */
+.message {
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.message.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+/* Form styles */
+.sales-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group21 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group21 label {
+  font-weight: 500;
+  color: #b2c8cb; /* Using your background color for subtle labels */
+  font-size: 15px;
+}
+
+.form-group21 input {
+  padding: 12px 15px;
+  border: 1px solid #00a3c6; /* Brand color for borders */
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background-color: #0d3a42; /* Dark input backgrounds */
+  color: white;
+}
+
+.form-group21 input:focus {
+  outline: none;
+  border-color: #b2c8cb; /* Background color for focus */
+  box-shadow: 0 0 0 2px rgba(178, 200, 203, 0.3);
+}
+
+/* Model input group */
+.model-input-group {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.model-input, .price-input {
+  padding: 10px 12px;
+}
+
+.add-model-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 15px;
+  background-color: #00a3c6; /* Brand color */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.add-model-button:hover {
+  background-color: #0087a8; /* Darker brand color */
+}
+
+.add-model-button:disabled {
+  background-color: #00a3c6; /* Brand color */
+  cursor: not-allowed;
+}
+
+/* Models list styles */
+.models-list-container {
+  border: 1px solid #00a3c6; /* Brand color */
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #0d3a42; /* Dark background for list */
+}
+
+.models-list-title {
+  color: #b2c8cb; /* Background color for text */
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #00a3c6; /* Brand color */
+}
+
+.models-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.model-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #195b64; /* Matching form background */
+  border-radius: 6px;
+  border: 1px solid #00a3c6; /* Brand color */
+  color: white;
+}
+
+.model-text {
+  flex: 1;
+  color: white;
+}
+
+.model-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-model-button, .delete-model-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.edit-model-button {
+  color: #b2c8cb; /* Background color for icon */
+}
+
+.edit-model-button:hover {
+  background-color: rgba(0, 163, 198, 0.2);
+}
+
+.delete-model-button {
+  color: #ff6b6b; /* Softer red that works with dark theme */
+}
+
+.delete-model-button:hover {
+  background-color: rgba(255, 107, 107, 0.2);
+}
+
+/* Submit button */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-button {
+  padding: 12px 24px;
+  background-color: #00a3c6; /* Brand color */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #0087a8; /* Darker brand color */
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+  background-color: #00a3c6; /* Brand color */
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .sales-container2 {
+    padding: 15px;
+  }
+  
+  .sales-form-container2 {
+    padding: 20px;
+  }
+  
+  .model-input-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .add-model-button {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-form-title {
+    font-size: 20px;
+  }
+}
+  
+  /* .form-group21 input */

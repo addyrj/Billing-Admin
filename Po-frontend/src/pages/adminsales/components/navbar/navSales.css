@@ -1,0 +1,167 @@
+
+.navbarSales {
+  width: 100%;
+  background-color: #004953; 
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.navbarSales-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbarSales-logo {
+  height: 40px;
+  display: none;
+}
+
+.titleSales_1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); */
+  margin: 0;
+}
+
+.navbarSales-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnSales {
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.primarySales {
+  background-color: #0087a8;
+}
+
+.primarySales:hover {
+  background-color: #0087a8;
+}
+
+.secondarySales {
+  background-color: #0087a8;
+}
+
+.secondarySales:hover {
+  background-color: #0087a8;
+}
+
+.iconSales {
+  font-size: 18px;
+}
+
+.rightSales {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcomeSales {
+  color: #b2c8cb;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.profileSales {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatarSales {
+  font-size: 36px;
+  color: #0087a8;
+}
+
+.badgeSales {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+}
+
+@media screen and (max-width: 992px) {
+  .titleSales_1 {
+    max-width: 200px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .navbarSales {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .navbarSales-logo {
+    display: block;
+    margin-left: 36px;
+    margin-bottom: 23px;
+    height: 35px;
+  }
+
+  .titleSales_1 {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .navbarSales-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .rightSales {
+    justify-content: center;
+  }
+
+  .btnSales {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .navbarSales {
+    padding: 15px;
+  }
+
+  .titleSales_1 {
+    font-size: 14px;
+  }
+
+  .btnSales {
+    font-size: 12px;
+  }
+
+  .welcomeSales {
+    font-size: 13px;
+  }
+}

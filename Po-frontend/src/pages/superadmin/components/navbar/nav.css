@@ -1,0 +1,187 @@
+.navbar1 {
+  width: 100%;
+  background-color: #a1a1a1;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.navbar1-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar1-logo {
+  height: 40px;
+  display: none;
+}
+
+.navbar1-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); */
+}
+
+.navbar1-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.create1-product-button,
+.download1-product-button {
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.create1-product-button {
+  background-color: #00a3c6;
+}
+
+.create1-product-button:hover {
+  background-color: #0087a8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.download1-product-button {
+  background-color: #00a3c6;
+}
+
+.download1-product-button:hover {
+  background-color: #0087a8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar1-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbar1-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar1-icon {
+  font-size: 36px;
+  cursor: pointer;
+  color: #ffffff;
+  transition: transform 0.3s ease;
+}
+
+.navbar1-icon:hover {
+  transform: scale(1.1);
+}
+
+.navbar1-counter {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+}
+
+.welcome-message {
+  color: #ffffff;
+  font-weight: 500;
+  /* text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); */
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f8ff;
+  color: #00a3c6;
+}
+
+.dropdown-icon {
+  color: #00a3c6;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .navbar1 {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .navbar1-top {
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .navbar1-logo {
+    display: block;
+  }
+  
+  .navbar1-title {
+    font-size: 16px;
+  }
+  
+  .navbar1-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .navbar1-right {
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .create-product-button,
+  .download-product-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,182 @@
+/* Navbar Container */
+.userpurchase-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background-color: #3B3B3B;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  color: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* Top Section with Logo */
+.userpurchase-navbar-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userpurchase-navbar-logo {
+  height: 40px;
+  display: none;
+}
+
+.userpurchase-navbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); */
+}
+
+/* Navbar Buttons */
+.userpurchase-navbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userpurchase-create-button,
+.userpurchase-inventory-button {
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #0087a8;
+}
+
+.userpurchase-create-button:hover,
+.userpurchase-inventory-button:hover {
+  background-color: #006a84;
+  transform: translateY(-2px);
+}
+
+.userpurchase-button-icon {
+  font-size: 18px;
+}
+
+/* Right Section with Profile */
+.userpurchase-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.userpurchase-welcome-message {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.userpurchase-profile-dropdown {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.userpurchase-profile-icon {
+  font-size: 36px;
+  color: #0087a8;
+}
+
+.userpurchase-notification-counter {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+}
+
+/* Dropdown Menu */
+.userpurchase-dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: #3B3B3B;
+  border: 1px solid #0087a8;
+  border-radius: 6px;
+  padding: 10px;
+  z-index: 1000;
+  min-width: 150px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.userpurchase-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+  padding: 5px 0;
+}
+
+.userpurchase-dropdown-icon {
+  color: #0087a8;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 1024px) {
+  .userpurchase-navbar-title {
+    max-width: 200px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .userpurchase-navbar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .userpurchase-navbar-top {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .userpurchase-navbar-title {
+    max-width: 180px;
+    font-size: 14px;
+  }
+
+  .userpurchase-navbar-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .userpurchase-navbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .userpurchase-navbar-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .userpurchase-create-button,
+  .userpurchase-inventory-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

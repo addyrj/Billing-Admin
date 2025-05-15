@@ -1,0 +1,105 @@
+input,
+textarea,
+select {
+  white-space: pre-wrap !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input[type="file"] {
+  display: none !important;
+}
+
+.signature-image-wrapper img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+
+/* Error Styling */
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.error-input {
+  border: 1px solid red !important;
+}
+
+.error-summary {
+  background-color: #721c24;
+  color: #fff;
+  border: 1px solid #f5c6cb;
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  font-weight: 20px;
+  z-index: 1000;
+}
+
+.error-summary h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.error-summary ul {
+  margin-bottom: 0;
+  padding-left: 1.5rem;
+}
+
+.message {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  font-weight: 20px;
+  z-index: 1000;
+}
+
+.message.success {
+  background-color: #155724;
+  color: #fff;
+  border: 1px solid #f5c6cb;
+}
+
+.message.error {
+  background-color: #721c24;
+  color: #fff;
+  border: 1px solid #f5c6cb;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #printable-invoice,
+  #printable-invoice * {
+    visibility: visible;
+  }
+
+  #printable-invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .no-print,
+  button {
+    display: none !important;
+  }
+}

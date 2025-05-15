@@ -1,0 +1,467 @@
+
+
+/* Main container styles */
+.po-list-container {
+  background-color: #3B3B3B;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  color: #ffffff;
+}
+
+/* Table title */
+.po-list-title {
+  color: #ffffff;
+  font-size: 22px;
+  margin-bottom: 0;
+  border-bottom: 2px solid #0087a8;
+  padding-bottom: 7px;
+  /* text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); */
+}
+
+/* Table header with search */
+.po-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* Search container */
+.search-container {
+  position: relative;
+  min-width: 250px;
+  max-width: 400px;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #B2B2B2;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #4A4A4A;
+  color: #ffffff;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0087a8;
+  box-shadow: 0 0 0 2px rgba(0, 135, 168, 0.3);
+}
+
+/* Table wrapper */
+.table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid #555;
+  margin-bottom: 15px;
+}
+
+/* Custom scrollbar for table wrapper */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #4A4A4A;
+  border-radius: 0 8px 8px 0;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background-color: #0087a8;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: #006a84;
+}
+
+/* Table styles */
+.po-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  table-layout: fixed;
+}
+
+.po-list-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.po-list-table thead tr {
+  background-color: #0087a8;
+  color: #ffffff;
+  text-align: left;
+}
+
+.po-list-table th,
+.po-list-table td {
+  padding: 12px 15px;
+  border: 1px solid #555;
+  word-wrap: break-word;
+}
+
+.po-list-table th {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  user-select: none;
+}
+/* Updated header styles */
+.po-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+  background-color: #3B3B3B;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.po-list-title {
+  color: #ffffff;
+  font-size: 22px;
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+  flex-shrink: 0;
+}
+
+/* Search container adjustments */
+.search-container {
+  position: relative;
+  min-width: 250px;
+  max-width: 400px;
+  flex: 1;
+}
+
+/* ... (keep all other existing styles) ... */
+
+@media (max-width: 768px) {
+  .po-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .search-container {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.sortable-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.po-list-table tbody tr {
+  border-bottom: 1px solid #555;
+  transition: background-color 0.2s ease;
+}
+
+.po-list-table tbody tr:nth-of-type(odd) {
+  background-color: #4A4A4A;
+}
+
+.po-list-table tbody tr:nth-of-type(even) {
+  background-color: #3B3B3B;
+}
+
+.po-list-table tbody tr:hover {
+  background-color: rgba(0, 135, 168, 0.3);
+}
+/* allPurchaseProducts.css */
+
+/* ... (keep all existing styles up to .action-buttons) ... */
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.edit-button, .delete-button {
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: none;
+}
+
+.edit-button {
+  color: #ffffff;
+  background-color: #0087a8;
+}
+
+.delete-button {
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.edit-button:hover {
+  background-color: rgba(76, 175, 80, 0.3);
+  transform: scale(1.1);
+}
+
+.delete-button:hover {
+  background-color: rgba(244, 67, 54, 0.3);
+  transform: scale(1.1);
+}
+
+.edit-button svg, .delete-button svg {
+  font-size: 18px;
+}
+
+/* ... (keep all remaining existing styles) ... */
+
+@media (max-width: 480px) {
+  /* ... (keep existing mobile styles) ... */
+  
+  .action-buttons {
+    gap: 5px;
+  }
+  
+  .edit-button, .delete-button {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .edit-button svg, .delete-button svg {
+    font-size: 16px;
+  }
+}
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.view-button, .edit-button, .delete-button {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.edit-button {
+  background-color: #0087a8;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.edit-button:hover, .delete-button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Pagination styles */
+.pagination {
+  margin-top: auto;
+  padding-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #0087a8;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #006a84;
+  transform: translateY(-1px);
+}
+
+.pagination-button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.page-indicator {
+  font-size: 15px;
+  color: #B2B2B2;
+  font-weight: 500;
+}
+
+/* No results message */
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #B2B2B2;
+  font-size: 16px;
+  background-color: #4A4A4A;
+  border-radius: 6px;
+}
+
+/* Loading, error states */
+.loading, .error {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+  color: #B2B2B2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error {
+  flex-direction: column;
+}
+
+.error-message {
+  color: #ff6b6b;
+  margin-bottom: 15px;
+}
+
+.retry-button {
+  padding: 10px 20px;
+  background-color: #0087a8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #006a84;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .po-list-container {
+    padding: 15px;
+    margin: 10px;
+    height: auto;
+    min-height: calc(100vh - 120px);
+  }
+
+  .po-list-title {
+    font-size: 20px;
+  }
+
+  .po-list-table thead {
+    display: none;
+  }
+
+  .po-list-table tbody tr {
+    display: block;
+    margin-bottom: 15px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .po-list-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #555;
+  }
+
+  .po-list-table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  .po-list-table tbody td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #B2B2B2;
+    margin-right: 15px;
+    flex: 1;
+  }
+
+  .po-list-table tbody td > span {
+    flex: 2;
+    text-align: right;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-indicator {
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .po-list-table tbody td {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .po-list-table tbody td:before {
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

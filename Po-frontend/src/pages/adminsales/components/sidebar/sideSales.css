@@ -1,0 +1,176 @@
+/* Main Sidebar Styles */
+.sidebarSales {
+  background-color: #004953;
+  color: white;
+  flex: 1.5;
+  min-height: calc(100vh - 60px);
+  transition: transform 0.3s ease;
+  border-radius: 12px;
+  padding: 10px 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Top Section (Logo Area) */
+.topSales {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px 10px;
+}
+
+.logoSales-container {
+  width: 80%;
+  margin-bottom: 15px;
+}
+
+.logoSales-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 10px 0;
+}
+
+/* Center Section (Menu Items) */
+.centerSales {
+  padding: 0 15px;
+}
+
+.menuSales {
+  list-style: none;
+  padding: 0 15px;
+  margin: 0;
+}
+
+.menuSales-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 5px 0;
+  transition: all 0.2s;
+  color: #e0f2f3;
+}
+
+.menuSales-item:hover {
+  background-color: #195b64;
+  transform: translateX(5px);
+}
+
+.menuSales-item.active {
+  background-color: #00a3c6;
+  color: white;
+}
+
+.menuSales-icon {
+  min-width: 30px;
+  font-size: 22px;
+  color: #b2c8cb;
+}
+
+.menuSales-item.active .menuSales-icon,
+.menuSales-item:hover .menuSales-icon {
+  color: white;
+}
+
+.menuSales-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.titleSales {
+  font-size: 14px;
+  font-weight: 500;
+  color: #7fa4a9;
+  margin: 20px 0 10px 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Submenu Items */
+.submenuSales-item {
+  padding: 12px 20px 12px 50px;
+  background-color: rgba(0, 73, 83, 0.5);
+  margin-left: 10px;
+  border-left: 2px solid #00a3c6;
+}
+
+/* Toggle Button */
+.sidebarSales-toggle {
+  display: none;
+  position: fixed;
+  top: 6px;
+  left: 5px;
+  background-color: #00a3c6;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Overlay */
+.sidebarSales-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+
+.sidebarSales-overlay.show {
+  display: block;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+  .sidebarSales {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 230px;
+    border-radius: 10px;
+    transform: translateX(-100%);
+    z-index: 1000;
+
+    padding-top: 8px;
+  }
+
+  .sidebarSales.open {
+    transform: translateX(0);
+  }
+
+  .sidebarSales-toggle {
+    display: block;
+  }
+
+  .logoSales-container {
+    width: 70%;
+  }
+
+  .logoSales-image {
+    padding-left: 20px;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+  .sidebarSales-toggle,
+  .sidebarSales-overlay {
+    display: none !important;
+  }
+}
