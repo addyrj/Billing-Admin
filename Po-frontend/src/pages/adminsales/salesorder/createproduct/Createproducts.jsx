@@ -2,6 +2,7 @@ import "./createSales.css";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Loader from "../../../../loader/Loader";
 
 function CreateproductsSales() {
   const [availableProducts, setAvailableProducts] = useState([]);
@@ -31,10 +32,13 @@ function CreateproductsSales() {
   
   const [message, setMessage] = useState({ text: "", type: "" });
   const [errorFields, setErrorFields] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [touchedFields, setTouchedFields] = useState({});
   
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`);
         if (!response.ok) throw new Error("Failed to fetch products");
         const responseData = await response.json();
@@ -47,11 +51,46 @@ function CreateproductsSales() {
         setAvailableProducts(transformedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
+        setMessage({ text: "Failed to load products", type: "error" });
         setAvailableProducts([]);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
   }, []);
+    
+  const validateField = (name, value) => {
+    switch (name) {
+      case "companyName":
+        return value.trim() === "" ? "Company name is required" : "";
+      case "firmType":
+        return value === "" ? "Firm type is required" : "";
+      case "natureOfBusiness":
+        return value === "" ? "Nature of business is required" : "";
+      case "email":
+        if (value === "") return "Email is required";
+        return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? "Invalid email format" : "";
+      case "ContactNumbers[0]":
+        if (value === "") return "Primary contact is required";
+        return !/^\d{10}$/.test(value) ? "Must be 10 digits" : "";
+      case "billingAddress.address":
+      case "shippingAddress.address":
+      case "registeredOfficeAddress.address":
+        return value.trim() === "" ? "Address is required" : "";
+      case "billingAddress.State":
+      case "shippingAddress.State":
+      case "registeredOfficeAddress.State":
+        return value.trim() === "" ? "State is required" : "";
+      case "billingAddress.pinCode":
+      case "shippingAddress.pinCode":
+      case "registeredOfficeAddress.pinCode":
+        if (value === "") return "Pin code is required";
+        return !/^\d{6}$/.test(value) ? "Must be 6 digits" : "";
+      default:
+        return "";
+    }
+  };
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -207,12 +246,16 @@ function CreateproductsSales() {
     });
   };
 
-  const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when submitting
+    setMessage({ text: "", type: "" });
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         setMessage({ text: "You are not logged in.", type: "error" });
+        setLoading(false);
         return;
       }
 
@@ -229,6 +272,7 @@ function CreateproductsSales() {
 
       if (!response.ok) {
         setMessage({ text: data.message, type: "error" });
+        setLoading(false);
         return;
       }
 
@@ -238,8 +282,22 @@ function CreateproductsSales() {
       }, 2000);
     } catch (error) {
       setMessage({ text: "Network error! Check your server.", type: "error" });
+    } finally {
+      setLoading(false); // Set loading to false when done
     }
   };
+
+  if (loading) {
+    return (
+      <Loader 
+        message="Processing your order..." 
+        color="#00a3c6" 
+        background="rgba(255, 255, 255, 0.95)"
+        blurBackground={true}
+      />
+    );
+  }
+
 
   return (
     <div className="sales-container3">

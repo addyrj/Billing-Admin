@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import img1 from "../../../../Assets/logo_01.png";
 import { useNavigate } from "react-router-dom";
 import "./invoice.css";
-
+import Loader from "../../../../loader/Loader";
 const InvoiceCreate = () => {
   const [isDelhiSupplier, setIsDelhiSupplier] = useState(true);
   const [preparedBySignature, setPreparedBySignature] = useState(null);
@@ -405,6 +405,15 @@ const InvoiceCreate = () => {
 
     fetchProducts();
   }, []);
+   if (isLoadingProducts) {
+    return (
+      <Loader 
+        message="Loading products..." 
+        color="#00a3c6" 
+        background="rgba(255, 255, 255, 0.95)"
+      />
+    );
+  }
 
   const handleSignatureChange = (e, setter, fieldName) => {
     const file = e.target.files[0];
@@ -523,9 +532,15 @@ const InvoiceCreate = () => {
       setPreparedBySignature(null);
       setVerifiedBySignature(null);
       setAuthorizedSignature(null);
-      document.getElementById("preparedBySignature").value = "";
-      document.getElementById("verifiedBySignature").value = "";
-      document.getElementById("authorizedSignature").value = "";
+
+// With this safer version:
+const resetFileInput = (id) => {
+  const input = document.getElementById(id);
+  if (input) input.value = "";
+};
+resetFileInput("preparedBySignature");
+resetFileInput("verifiedBySignature");
+resetFileInput("authorizedSignature");
 
       setMessage({
         text: `PO ${completePO.poNo} submitted successfully! Redirecting...`,
@@ -588,6 +603,16 @@ const InvoiceCreate = () => {
       setIsSubmitting(false);
     }
   };
+   if (isSubmitting) {
+    return (
+      <Loader 
+        message="Submitting Purchase Order..." 
+        color="#00a3c6" 
+        background="rgba(255, 255, 255, 0.95)"
+     
+      />
+    );
+  }
 
   return (
     <div className="p-8" style={{ backgroundColor: "gray" }}>
@@ -1549,15 +1574,22 @@ const InvoiceCreate = () => {
         </div>
       </div>
       <div className="all-button flex justify-center items-center mt-4 mb-4 print:hidden">
-        <button
-          onClick={submitPO}
-          disabled={isSubmitting}
-          className={`bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)] text-white font-bold py-2 px-6 rounded text-sm transition-all duration-300 ${
-            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {isSubmitting ? "Submitting..." : "Submit P.O"}
-        </button>
+      <button
+  onClick={submitPO}
+  disabled={isSubmitting}
+  className={`bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)] text-white font-bold py-2 px-6 rounded text-sm transition-all duration-300 ${
+    isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+  }`}
+>
+  {isSubmitting ? (
+    <div className="flex items-center justify-center gap-2">
+      <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></div>
+      Processing...
+    </div>
+  ) : (
+    "Submit P.O"
+  )}
+</button>
       </div>
     </div>
   );

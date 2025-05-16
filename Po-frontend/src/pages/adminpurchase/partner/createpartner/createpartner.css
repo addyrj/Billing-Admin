@@ -91,7 +91,50 @@
   margin-bottom: 20px;
   text-align: center;
 }
+/* Error Styles */
+.input-error {
+  border-color: #e63946 !important;
 
+}
+
+.error-message {
+  color: #e63946;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.partner-error-message {
+  background-color: #fee2e2;
+  color: #e63946;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.partner-success-message {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Disabled button state */
+.partner-submit-button:disabled {
+  background-color: #b0e0e6 !important;
+  cursor: not-allowed;
+  transform: none !important;
+}
 .partner-success-message {
   color: #4CAF50;
   background-color: rgba(76, 175, 80, 0.1);

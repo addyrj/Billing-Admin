@@ -4,7 +4,7 @@
   height: 100vh;
   display: flex;
   background-color: #FFFFFF;
-  /* background-color: #a1a1a1; */
+  background-color: #a1a1a1;
 }
 
 /* Hero Section */
@@ -23,6 +23,32 @@
 .hero-overlay {
   max-width: 600px;
   text-align: center;
+}
+/* Add these to your existing login.css */
+
+/* Input Error Styles */
+.input-error {
+  border-color: #e63946 !important;
+
+}
+
+.error-message {
+  color: #e63946;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Disabled button state */
+.login-button:disabled {
+  background-color: #b0e0e6 !important;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 .hero-overlay h1 {

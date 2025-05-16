@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CreatePartner.css";
+import "./createpartner.css";
 
 const CreatePartner = () => {
   const [formData, setFormData] = useState({

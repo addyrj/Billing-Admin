@@ -259,7 +259,8 @@
   }
 
   .action-buttons {
-    justify-content: flex-end;
+ display: flex;
+ flex-direction: column;
   }
 }
 
@@ -273,5 +274,9 @@
   .sales-table tbody td:before {
     margin-right: 0;
     margin-bottom: 5px;
+  }
+    .action-buttons {
+ display: flex;
+ flex-direction: column;
   }
 }

@@ -65,3 +65,5 @@ coverage/
 
 # Mac system file
 .DS_Store
+
+.vercel

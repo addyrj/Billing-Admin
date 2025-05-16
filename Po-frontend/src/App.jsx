@@ -47,7 +47,7 @@ import HomePurchaseUser from "./pages/purchaseuser/home/Home.jsx";
 import InvoiceCreateU from "./pages/purchaseuser/invoice/invoicecreate/InvoiceCreate.jsx";
 import GetInvoiceU from "./pages/purchaseuser/invoice/getInvoice/GetInvoice.jsx";
 import ViewInvoiceU from "./pages/purchaseuser/invoice/viewinvoice/ViewInvoice.jsx";
-import EditInvoiceU from "./pages/purchaseuser/invoice/editInvoice/editInvoice.jsx";
+import EditInvoiceU from "./pages/purchaseuser/invoice/editInvoice/EditInvoice.jsx";
 import CreatePurchaseProductU from "./pages/purchaseuser/purchaseProductList/createPurchaseProduct/createPurchaseProduct.jsx";
 import AllPurchaseProductsU from "./pages/purchaseuser/purchaseProductList/allPurchaseProducts/AllPurchaseProducts.jsx";
 import EditPurchaseProductU from "./pages/purchaseuser/purchaseProductList/editPurchaseProduct/EditPurchaseProduct.jsx";

@@ -1,11 +1,21 @@
 import "./login.css";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../loader/Loader";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    form: ""
+  });
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false
+  });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -36,26 +46,73 @@ const Login = () => {
         navigate("/purchaseuser");
         break;
       default:
-        setError("Unauthorized role detected.");
+        setErrors(prev => ({...prev, form: "Unauthorized role detected."}));
         break;
+    }
+  };
+
+  const validateEmailOrMobile = (value) => {
+    if (!value) return "Email or mobile is required";
+    
+    // Check if it's a valid email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Check if it's a valid 10-digit mobile number
+    const mobileRegex = /^[0-9]{10}$/;
+    
+    if (!emailRegex.test(value) && !mobileRegex.test(value)) {
+      return "Please enter a valid email or 10-digit mobile number";
+    }
+    
+    return "";
+  };
+
+  const validatePassword = (value) => {
+    if (!value) return "Password is required";
+    if (value.length < 6) return "Password must be at least 6 characters";
+    return "";
+  };
+
+  const handleBlur = (field) => () => {
+    setTouched(prev => ({...prev, [field]: true}));
+    
+    // Validate the field that just lost focus
+    if (field === "email") {
+      setErrors(prev => ({...prev, email: validateEmailOrMobile(email)}));
+    } else if (field === "password") {
+      setErrors(prev => ({...prev, password: validatePassword(password)}));
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-
-    if (!email || !password) {
-      setError("Please enter both email and password");
+    
+    // Validate all fields before submission
+    const emailError = validateEmailOrMobile(email);
+    const passwordError = validatePassword(password);
+    
+    setErrors({
+      email: emailError,
+      password: passwordError,
+      form: ""
+    });
+    
+    setTouched({
+      email: true,
+      password: true
+    });
+    
+    if (emailError || passwordError) {
       return;
     }
+    
+    setLoading(true);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          user_id: email, // Using email as user_id
+          user_id: email,
           password 
         }),
       });
@@ -67,7 +124,6 @@ const Login = () => {
       }
 
       if (data.token && data.role) {
-        // Store token and user data
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify({
           id: data.user.id,
@@ -76,26 +132,35 @@ const Login = () => {
           mobile: data.user.mobile,
           role: data.role
         }));
-
-        // Redirect based on role
         redirectBasedOnRole(data.role);
       } else {
         throw new Error("Invalid response from server");
       }
     } catch (error) {
       console.error("Login error:", error);
-      setError(error.message || "Something went wrong. Please try again.");
+      setErrors(prev => ({...prev, form: error.message || "Something went wrong. Please try again."}));
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Loader 
+        message="Authenticating..." 
+        color="#00a3c6" 
+        background="rgba(255, 255, 255, 0.95)"
+     
+      />
+    );
+  }
 
   return (
     <div className="login-container">
       <div className="login-hero">
         <div className="hero-overlay">
           <h1>Welcome Back</h1>
-          <p>
-  Manage your sales and purchases seamlessly with our powerful business system.
-</p>
+          <p>Manage your sales and purchases seamlessly with our powerful business system.</p>
         </div>
       </div>
       
@@ -106,9 +171,9 @@ const Login = () => {
             <p>Enter your credentials to access your account</p>
           </div>
           
-          {error && <div className="login-error">{error}</div>}
+          {errors.form && <div className="login-error">{errors.form}</div>}
           
-          <form onSubmit={handleLogin} className="login-form">
+          <form onSubmit={handleLogin} className="login-form" noValidate>
             <div className="form-groups">
               <label htmlFor="identifier">Email or Mobile</label>
               <input
@@ -117,8 +182,13 @@ const Login = () => {
                 placeholder="Enter email or mobile number"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={handleBlur("email")}
+                className={touched.email && errors.email ? "input-error" : ""}
                 required
               />
+              {touched.email && errors.email && (
+                <div className="error-message">{errors.email}</div>
+              )}
             </div>
             
             <div className="form-groups">
@@ -129,12 +199,21 @@ const Login = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={handleBlur("password")}
+                className={touched.password && errors.password ? "input-error" : ""}
                 required
               />
+              {touched.password && errors.password && (
+                <div className="error-message">{errors.password}</div>
+              )}
             </div>
             
-            <button type="submit" className="login-button">
-              Sign In
+            <button 
+              type="submit" 
+              className="login-button" 
+              disabled={loading}
+            >
+              {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
           
