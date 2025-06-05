@@ -2,6 +2,8 @@ const { invoiceOrderSchema, updateInvoiceOrderSchema } = require("../validations
 const PurchaseOrder = require("../models/invoiceModel");
 const { convertToWords } = require('../config/amountConverter');
 const { sendPurchaseOrderEmail } = require('../services/emailService');
+const { sendPurchaseOrderWhatsApp } = require('../services/whatsappService');
+const { sendPurchaseOrderEmailVender } =require('../services/emailVender');
 
 // Helper function to validate form data
 const validateFormData = (formData, isUpdate = false) => {
@@ -220,6 +222,21 @@ const createPurchaseOrder = async (req, res) => {
       console.error('Email sending failed but order was created:', emailError);
       // Continue even if email fails
     }
+
+      // Send WhatsApp notification if number is provided
+    // try {
+    //   if (createdOrder.whatsappNo) {
+    //     await sendPurchaseOrderWhatsApp(createdOrder, `+91${createdOrder.whatsappNo}`);
+    //   }
+    // } catch (whatsappError) {
+    //   console.error('WhatsApp sending failed but order was created:', whatsappError);
+    // }
+    
+    // return res.status(201).json({
+    //   success: true,
+    //   message: "Purchase order created successfully",
+    //   data: createdOrder
+    // });
     
     return res.status(201).json({
       success: true,
@@ -369,6 +386,14 @@ const updatePurchaseOrder = async (req, res) => {
       console.error('Email sending failed but order was updated:', emailError);
       // Continue even if email fails
     }
+     // Send WhatsApp update if number is provided
+    // try {
+    //   if (updatedPO.whatsappNo) {
+    //     await sendPurchaseOrderWhatsApp(updatedPO, `+91${updatedPO.whatsappNo}`);
+    //   }
+    // } catch (whatsappError) {
+    //   console.error('WhatsApp update failed but order was updated:', whatsappError);
+    // }
     
     res.status(200).json({
       success: true,
@@ -430,6 +455,67 @@ const deletePurchaseOrder = async (req, res) => {
     });
   }
 };
+// Approve PO endpoint
+const approvePurchaseOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const po = await PurchaseOrder.getById(id);
+    
+    if (!po) {
+      return res.status(404).json({ success: false, message: "PO not found" });
+    }
+
+    const updatedPO = await PurchaseOrder.updateById(id, {
+      approved: true,
+      approved_at: new Date()
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "PO approved successfully",
+      data: updatedPO
+    });
+  } catch (err) {
+    handleControllerError(res, err, "approvePurchaseOrder");
+  }
+};
+
+// Send PO endpoint (will send both WhatsApp and Email)
+const sendPurchaseOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const po = await PurchaseOrder.getById(id);
+
+    if (!po) {
+      return res.status(404).json({ success: false, message: "PO not found" });
+    }
+
+    if (!po.approved) {
+      return res.status(400).json({ success: false, message: "PO must be approved before sending" });
+    }
+
+    // Send WhatsApp if number exists
+    if (po.whatsappNo) {
+      await sendPurchaseOrderWhatsApp(po, `+91${po.whatsappNo}`);
+    }
+
+    // Send Email
+    await sendPurchaseOrderEmailVender(po, [po.email], false);
+
+    // Update sent status
+    const updatedPO = await PurchaseOrder.updateById(id, {
+      sent: true
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "PO sent on whatapp or mail successfully",
+      data: updatedPO
+    });
+  } catch (err) {
+    handleControllerError(res, err, "sendPurchaseOrder");
+  }
+};
 
 module.exports = {
   createPurchaseOrder,
@@ -438,4 +524,7 @@ module.exports = {
   updatePurchaseOrder,
   deletePurchaseOrder,
   uploadSignatures,
+  approvePurchaseOrder,
+  sendPurchaseOrder
+
 };

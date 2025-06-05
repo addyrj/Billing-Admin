@@ -6,7 +6,10 @@ const {
   getPurchaseOrderById,
   updatePurchaseOrder,
   deletePurchaseOrder,
-  uploadSignatures
+  uploadSignatures,
+  sendPurchaseOrder,
+  approvePurchaseOrder
+
 } = require("../controllers/invoiceController");
 const { authenticateToken, requireRole } = require("../middleware/authenticateToken");
 const upload = require("../config/multerConfig");
@@ -52,6 +55,19 @@ router.delete(
   "/delete-po/:id",
   requireRole('adminpurchase'),
   deletePurchaseOrder
+);
+// Approve PO route
+router.put(
+  "/approve-po/:id",
+  requireRole('adminpurchase'),
+  approvePurchaseOrder
+);
+
+// Send PO route
+router.post(
+  "/send-po/:id",
+  requireRole(['adminpurchase', 'purchaseuser']),
+  sendPurchaseOrder
 );
 
 // Upload signatures - Both roles

@@ -4,10 +4,9 @@ const { convertToWords } = require('../config/amountConverter');
 const itemSchema = Joi.object({
   id: Joi.number().required()
     .messages({ 'any.required': 'Item ID is required' }),
-  description: Joi.string().required().max(500)
-    .messages({ 'string.empty': 'Description cannot be empty' }),
-  productname: Joi.string().required().max(100)
-    .messages({ 'string.empty': 'Product name is required' }),
+  itemcode: Joi.string().optional(), // Make itemcode optional since it comes from another API
+  description: Joi.string().optional().max(500), // Make optional if coming from API
+  productname: Joi.string().optional().max(100),
   units: Joi.string().valid('kg', 'pcs', 'numbers').required()
     .messages({ 
       'any.only': 'Units must be kg, pcs, or numbers',
@@ -92,6 +91,7 @@ const invoiceOrderSchema = Joi.object({
     .messages({
       'string.pattern.base': 'Invalid contact number format'
     }),
+      whatsappNo: Joi.string().pattern(/^[0-9]{10,15}$/).allow('').optional(),
   email: Joi.string().required().email().max(100),
   prNo: Joi.string().required().max(50),
   supplierOfferDate: Joi.alternatives()
@@ -256,6 +256,7 @@ const updateInvoiceOrderSchema = Joi.object({
   supplierAddress: Joi.string().max(500).optional(),
   contactPerson: Joi.string().max(100).optional(),
   contactNo: Joi.string().pattern(/^[0-9]{10,15}$/).allow('').optional(),
+  whatsappNo: Joi.string().pattern(/^[0-9]{10,15}$/).allow('').optional(),
   email: Joi.string().email().max(100).optional(),
   prNo: Joi.string().max(50).optional(),
   supplierOfferDate: Joi.alternatives()

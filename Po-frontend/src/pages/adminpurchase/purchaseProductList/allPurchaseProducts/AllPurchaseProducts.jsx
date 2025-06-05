@@ -121,6 +121,7 @@ const PurchaseProductList = () => {
           <thead>
             <tr>
               <th>S.No</th>
+               <th>Item Code</th>
               <th>Product Name</th>
               <th>Description</th>
               <th>Created At</th>
@@ -132,6 +133,7 @@ const PurchaseProductList = () => {
               currentItems.map((product, index) => (
                 <tr key={product.id}>
                   <td>{indexOfFirstItem + index + 1}</td>
+                   <td>{product.itemcode}</td>
                   <td>{product.productname}</td>
                   <td>{product.description}</td>
                   <td>{formatDate(product.created_at)}</td>

@@ -1,8 +1,6 @@
-
-const numberToWords = require('number-to-words');
+const numWords = require('num-words');
 
 function convertToWords(amount) {
-
   if (amount === null || amount === undefined || amount === '') return '';
 
   const numAmount = typeof amount === 'string'
@@ -14,16 +12,14 @@ function convertToWords(amount) {
   const rupees = Math.floor(numAmount);
   const paise = Math.round((numAmount - rupees) * 100);
 
-  let words = numberToWords.toWords(rupees).replace(/-/g, ' ') + ' rupees';
+  let words = numWords(rupees) + ' rupees';
 
   if (paise > 0) {
-    words += ' and ' + numberToWords.toWords(paise).replace(/-/g, ' ') + ' paise';
+    words += ' and ' + numWords(paise) + ' paise';
   }
 
-  return words.toLowerCase() + ' only'; // Ensure consistent lowercase
+  return words.toLowerCase() + ' only'; // Ensures consistent lowercase
 }
-
-module.exports = { convertToWords };
 
 module.exports = {
   convertToWords,

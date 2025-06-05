@@ -95,7 +95,7 @@
 
 .po-list-table th,
 .po-list-table td {
-  padding: 12px 15px;
+  padding: 6px 8px !important;
   border: 1px solid #555;
   word-wrap: break-word;
 }
@@ -259,7 +259,123 @@
 .retry-button:hover {
   background-color: #006a84;
 }
+/* Approval button styles */
+.approval-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  font-size: 14px;
+}
 
+.approval-button.pending {
+  background-color: #f44336; /* Red for pending */
+}
+
+.approval-button.approved {
+  background-color: #28a745; /* Green for approved */
+}
+
+.approval-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* --------------------------- */
+
+.approval-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  font-size: 14px;
+  width: 100%;
+  
+}
+
+.approval-button.pending {
+  background-color: #f44336; 
+}
+
+.approval-button.approved {
+  background-color: #28a745; 
+}
+
+.approval-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.send-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.send-button.disabled {
+  background-color: #6c757d; 
+  cursor: not-allowed;
+}
+
+.send-button.pending {
+  background-color: #17a2b8; 
+}
+
+.send-button.sent {
+  background-color: #28a745; 
+}
+
+.send-button:disabled {
+  opacity: 0.6;
+}
+.approval-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.approval-time {
+  position: absolute;
+  top: 38px; 
+  left: 56%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #aaa;
+
+  padding: 2px 6px;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+
+
+.approval-button:not(:disabled):hover,
+.send-button:not(:disabled):not(.disabled):hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Fixed width for S.No column */
+.po-list-table td:first-child,
+.po-list-table th:first-child {
+  width: 57px;
+  min-width: 50px;
+  text-align: center;
+}
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .po-list-container {

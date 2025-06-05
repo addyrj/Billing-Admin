@@ -44,7 +44,7 @@ import EditPurchaseProduct from "./pages/adminpurchase/purchaseProductList/editP
 
 // User Purchase all pages
 import HomePurchaseUser from "./pages/purchaseuser/home/Home.jsx";
-import InvoiceCreateU from "./pages/purchaseuser/invoice/invoicecreate/InvoiceCreate.jsx";
+// import InvoiceCreateU from "./pages/purchaseuser/invoice/invoicecreate/InvoiceCreate.jsx";
 import GetInvoiceU from "./pages/purchaseuser/invoice/getInvoice/GetInvoice.jsx";
 import ViewInvoiceU from "./pages/purchaseuser/invoice/viewinvoice/ViewInvoice.jsx";
 import EditInvoiceU from "./pages/purchaseuser/invoice/editInvoice/EditInvoice.jsx";
@@ -197,7 +197,7 @@ function App() {
           <Route index element={<GetInvoiceU />} />
           <Route path="all-products" element={<AllProductsSales />} />
           <Route path="all-invoice" element={<GetInvoiceU />} />
-          <Route path="create-invoice" element={<InvoiceCreateU />} />
+          {/* <Route path="create-invoice" element={<InvoiceCreateU />} /> */}
           <Route path="view-invoice/:id" element={<ViewInvoiceU />} />
           <Route path="edit-invoice/:id" element={<EditInvoiceU />} />
           <Route path="create-pp" element={<CreatePurchaseProductU />} />

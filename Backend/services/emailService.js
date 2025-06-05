@@ -117,6 +117,10 @@ const sendPurchaseOrderEmail = async (poData, isUpdate = false) => {
                 <td style="background-color: #e3f2fd;"><strong>Contact Number:</strong></td>
                 <td>${poData.contactNo || 'Not specified'}</td>
             </tr>
+             <tr>
+                <td style="background-color: #e3f2fd;"><strong>WhatUp N0:</strong></td>
+                <td>${poData.whatsappNo || 'Not specified'}</td>
+            </tr>
             <tr>
                 <td style="background-color: #f5f5f5;"><strong>Email:</strong></td>
                 <td>${poData.email || 'Not specified'}</td>

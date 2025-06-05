@@ -1,12 +1,24 @@
 const db = require("../config/db");
 
+const generateItemCode = (id) => {
+    return `RM${String(id).padStart(4, '0')}`;
+};
+
 const PurchaseProduct = {
     create: async (data) => {
         const [result] = await db.execute(
             "INSERT INTO purchase_products (productname, description) VALUES (?, ?)",
             [data.productname, data.description]
         );
-        return { id: result.insertId, ...data };
+        
+        // Generate and update the itemcode after insertion
+        const itemcode = generateItemCode(result.insertId);
+        await db.execute(
+            "UPDATE purchase_products SET itemcode = ? WHERE id = ?",
+            [itemcode, result.insertId]
+        );
+        
+        return { id: result.insertId, itemcode, ...data };
     },
 
     getAll: async () => {
@@ -40,7 +52,6 @@ const PurchaseProduct = {
         return result.affectedRows > 0;
     },
 
-    // Additional method to check for duplicate description
     isDescriptionExists: async (description, excludeId = null) => {
         let query = "SELECT id FROM purchase_products WHERE LOWER(TRIM(description)) = LOWER(TRIM(?))";
         const params = [description];
