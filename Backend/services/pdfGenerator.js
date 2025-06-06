@@ -20,8 +20,15 @@ const generateInvoicePDF = async (invoiceData, outputPath = null) => {
       const doc = new PDFDocument({
         margin: 20,
         size: 'A4',
-        bufferPages: true
+        bufferPages: true,
+        autoFirstPage: true,
+        info: {
+          Title: 'Purchase Order',
+          Author: 'IOTtech Smart Products Pvt. Ltd',
+          Subject: 'Purchase Order Document'
+        }
       });
+      
 
       // Set up buffers to collect PDF data
       const buffers = [];
@@ -64,13 +71,17 @@ const generateInvoicePDF = async (invoiceData, outputPath = null) => {
       addDeliveryInfo(doc, invoiceData, margin, contentWidth);
 
       // ITEMS TABLE - Products, quantities, prices
-      addItemsTable(doc, invoiceData, margin, contentWidth);
+      const yAfterItems = addItemsTable(doc, invoiceData, margin, contentWidth);
+      doc.y = yAfterItems;
 
       // TOTALS SECTION - Final amounts
       addTotalsSection(doc, invoiceData, margin, contentWidth);
 
       // TERMS AND SIGNATURES
       addTermsAndSignatures(doc, invoiceData, margin, contentWidth);
+
+      // Add page numbers to all pages
+      addPageNumbers(doc);
 
       // Finalize the PDF
       doc.end();
@@ -81,6 +92,40 @@ const generateInvoicePDF = async (invoiceData, outputPath = null) => {
     }
   });
 };
+
+/**
+ * Adds page numbers to all pages in the document
+ */
+function addPageNumbers(doc) {
+  try {
+    const pageCount = doc.bufferedPageRange().count;
+    
+    for (let i = 0; i < pageCount; i++) {
+      doc.switchToPage(i);
+      
+      // Position for page number (bottom right)
+      const pageWidth = doc.page.width;
+      const pageHeight = doc.page.height;
+      const margin = 25;
+      
+      // Add page number in "Page X of Y" format
+      doc.fontSize(9)
+        .font('Helvetica')
+        .fillColor('black')
+        .text(
+          `Page ${i + 1} of ${pageCount}`,
+          pageWidth - margin - 70, // Wider space for the text
+          pageHeight - margin - 10,
+          {
+            width: 70,
+            align: 'right'
+          }
+        );
+    }
+  } catch (err) {
+    console.error('Error adding page numbers:', err);
+  }
+}
 
 /**
  * Adds header with company logo and title
@@ -155,7 +200,6 @@ function addClientAndSupplierDetails(doc, invoiceData, margin, contentWidth) {
       { label: 'Email:', value: invoiceData.email || '' },
       { label: 'PR NO:', value: invoiceData.prNo || '' },
       { label: 'Supplier Offer Date:', value: formatDate(invoiceData.supplierOfferDate) || '' },
-
       { label: 'GST No:', value: invoiceData.gstNo || '' },
       { label: 'Supplier GST:', value: invoiceData.supplierGST || '' },
     ];
@@ -235,10 +279,7 @@ function addDeliveryInfo(doc, invoiceData, margin, contentWidth) {
 }
 
 /**
- * Adds items table with products, quantities, and prices
- */
-/**
- * Adds items table with products, quantities, and prices
+ * Fixed items table with proper pagination
  */
 function addItemsTable(doc, invoiceData, margin, contentWidth) {
   try {
@@ -251,29 +292,26 @@ function addItemsTable(doc, invoiceData, margin, contentWidth) {
       invoiceData.supplierAddress.toLowerCase().includes("delhi");
 
     const pageWidth = doc.page.width;
-    const startY = doc.y;
-
-    // Material and Pricing title
-    doc.fontSize(10)
-      .font('Helvetica-Bold')
-      .text('Material and Pricing', margin, startY);
-
-    // Table setup
-    const tableTop = startY + 20;
-    const rowHeight = 24; // Slightly reduced for compactness
-
-    // Define columns with proportional widths - conditionally include GST columns
+    const pageHeight = doc.page.height;
+    
+    // Optimized row and header heights
+    const rowHeight = 22; // Reduced from 24
+    const headerHeight = 22; // Reduced from 24
+    
+    // Reduced footer space (was 220)
+    const footerSpace = 40; // Space for totals, terms, signatures
+    
+    // Define columns (same as before)
     const baseColumns = [
       { header: 'S.No', width: 0.05 },
-      { header: 'Item Coad', width: 0.07 },
+      { header: 'Item Code', width: 0.08 },
       { header: 'Product Name', width: 0.2 },
       { header: 'Description', width: 0.3 },
-      { header: 'Units', width: 0.05 },
+      { header: 'Units', width: 0.06 },
       { header: 'Rate', width: 0.06 },
-      { header: 'Quantity', width: 0.06 }
+      { header: 'Quantity', width: 0.07 }
     ];
 
-    // Add tax columns based on supplier location
     const taxColumns = isDelhiSupplier
       ? [
         { header: 'CGST (%)', width: 0.06 },
@@ -283,8 +321,7 @@ function addItemsTable(doc, invoiceData, margin, contentWidth) {
         { header: 'IGST (%)', width: 0.07 }
       ];
 
-    const totalColumn = { header: 'Total', width: 0.1 };
-
+    const totalColumn = { header: 'Total', width: 0.09 };
     const columns = [...baseColumns, ...taxColumns, totalColumn];
 
     // Calculate actual column widths
@@ -295,97 +332,128 @@ function addItemsTable(doc, invoiceData, margin, contentWidth) {
       currentX += col.actualWidth;
     });
 
-    // Draw table header
-    doc.rect(margin, tableTop, contentWidth, rowHeight).stroke();
-    columns.forEach(col => {
-      doc.fontSize(8)
-        .font('Helvetica-Bold')
-        .text(col.header, col.x + 2, tableTop + 7, {
-          width: col.actualWidth - 4,
-          align: 'center'
-        });
-
-      // Draw vertical line for column
-      if (col !== columns[0]) {
-        doc.moveTo(col.x, tableTop)
-          .lineTo(col.x, tableTop + rowHeight)
-          .stroke();
-      }
-    });
-
-    // Draw rows
-    doc.font('Helvetica');
-
     const items = invoiceData.items;
-    items.forEach((item, index) => {
-      const rowY = tableTop + (index + 1) * rowHeight;
+    let currentItemIndex = 0;
+    let isFirstPage = true;
+    
+    while (currentItemIndex < items.length) {
+      let currentY = doc.y;
+      
+      // Add title only on first page
+      if (isFirstPage) {
+        doc.fontSize(10)
+          .font('Helvetica-Bold')
+          .text('Material and Pricing', margin, currentY);
+        currentY += 15; // Reduced from 20
+      }
 
-      // Draw row rectangle
-      doc.rect(margin, rowY, contentWidth, rowHeight).stroke();
+      // Calculate available space for rows more accurately
+      const availableHeight = pageHeight - currentY - footerSpace;
+      const maxRows = Math.floor((availableHeight - headerHeight) / rowHeight);
+      
+      // If we can't fit even one row, start a new page
+      if (maxRows < 1) {
+        doc.addPage();
+        currentY = margin + 15; // Reduced from 20
+        isFirstPage = false;
+        continue;
+      }
 
-      // Prepare row data - conditionally include tax values
-      const baseData = [
-        index + 1,
-        item.itemcode || '',
-        item.productname || '',
-        item.description || '',
-        item.units || '',
-        item.rate?.toFixed(2) || '0.00',
-        item.quantity || 0
-      ];
+      // Draw table header
+      const tableTop = currentY;
+      doc.rect(margin, tableTop, contentWidth, headerHeight).stroke();
+      
+      columns.forEach(col => {
+        doc.fontSize(8)
+          .font('Helvetica-Bold')
+          .text(col.header, col.x + 2, tableTop + 5, { // Adjusted vertical position
+            width: col.actualWidth - 4,
+            align: 'center'
+          });
 
-      const taxData = isDelhiSupplier
-        ? [
-          item.cgst || 0,
-          item.sgst || 0
-        ]
-        : [
-          item.igst || 0
-        ];
-
-      const totalData = [
-        item.total?.toFixed(2) || '0.00'
-      ];
-
-      const rowData = [...baseData, ...taxData, ...totalData];
-
-      columns.forEach((col, colIndex) => {
-        // Draw vertical line for column
-        if (colIndex > 0) {
-          doc.moveTo(col.x, rowY)
-            .lineTo(col.x, rowY + rowHeight)
+        if (col !== columns[0]) {
+          doc.moveTo(col.x, tableTop)
+            .lineTo(col.x, tableTop + headerHeight)
             .stroke();
         }
-
-        // Different alignment based on column content
-        let align = 'left';
-        if ([0, 3, 4, 5, 6, 7, 8].includes(colIndex)) {
-          align = 'center'; // Center align for numbers and short text
-        }
-        if (colIndex === 1 || colIndex === 2) {
-          align = 'left'; // Left align for product name and description
-        }
-
-        doc.fontSize(7)
-          .text(
-            rowData[colIndex].toString(),
-            col.x + 3,
-            rowY + 7,
-            { width: col.actualWidth - 6, align }
-          );
       });
-    });
 
-    doc.y = tableTop + ((items.length + 1) * rowHeight) + 5;
+      currentY = tableTop + headerHeight;
+
+      // Determine how many items to show on this page
+      const itemsToShow = Math.min(maxRows, items.length - currentItemIndex);
+      
+      // Draw rows
+      doc.font('Helvetica');
+      for (let i = 0; i < itemsToShow; i++) {
+        const item = items[currentItemIndex + i];
+        const rowY = currentY + (i * rowHeight);
+
+        // Draw row rectangle
+        doc.rect(margin, rowY, contentWidth, rowHeight).stroke();
+
+        // Prepare row data
+        const baseData = [
+          currentItemIndex + i + 1,
+          item.itemcode || '',
+          item.productname || '',
+          item.description || '',
+          item.units || '',
+          item.rate?.toFixed(2) || '0.00',
+          item.quantity || 0
+        ];
+
+        const taxData = isDelhiSupplier
+          ? [item.cgst || 0, item.sgst || 0]
+          : [item.igst || 0];
+
+        const totalData = [item.total?.toFixed(2) || '0.00'];
+        const rowData = [...baseData, ...taxData, ...totalData];
+
+        // Draw column separators and content
+        columns.forEach((col, colIndex) => {
+          if (colIndex > 0) {
+            doc.moveTo(col.x, rowY)
+              .lineTo(col.x, rowY + rowHeight)
+              .stroke();
+          }
+
+          let align = 'left';
+          if ([0, 4, 5, 6, 7, 8].includes(colIndex)) align = 'center';
+          if (colIndex === 1 || colIndex === 2) align = 'left';
+
+          doc.fontSize(7)
+            .text(
+              rowData[colIndex].toString(),
+              col.x + 3,
+              rowY + 5, // Adjusted vertical position
+              { width: col.actualWidth - 6, align }
+            );
+        });
+      }
+
+      // Update current item index
+      currentItemIndex += itemsToShow;
+      currentY += itemsToShow * rowHeight;
+
+      // Set doc.y to current position
+      doc.y = currentY;
+
+      // If we have more items, add a new page
+      if (currentItemIndex < items.length) {
+        doc.addPage();
+        isFirstPage = false;
+      }
+    }
+
+    // Return the final Y position
+    return doc.y + 10;
   } catch (err) {
     console.error('Error in items table:', err);
     throw err;
   }
 }
 
-/**
- * Adds totals section with amount in words
- */
 function addTotalsSection(doc, invoiceData, margin, contentWidth) {
   try {
     const startY = doc.y;
@@ -425,15 +493,6 @@ function addTotalsSection(doc, invoiceData, margin, contentWidth) {
   }
 }
 
-/**
- * Adds terms and signatures section with improved signature image handling
- */
-/**
- * Adds terms and signatures section with improved signature image handling
- */
-/**
- * Adds terms and signatures section with improved signature image handling
- */
 /**
  * Adds terms and signatures section with improved signature image handling
  */
@@ -555,7 +614,6 @@ function addTermsAndSignatures(doc, invoiceData, margin, contentWidth) {
     throw err;
   }
 }
-
 
 // ==================== UTILITY FUNCTIONS ====================
 
