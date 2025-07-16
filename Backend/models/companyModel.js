@@ -163,28 +163,70 @@ const Company = {
         }
     },
 
-    parseCompanyResults: (results) => {
-        return results.map(company => {
-            const safeParse = (field) => {
-                if (!field || typeof field !== 'string') return field;
-                try {
-                    return JSON.parse(field);
-                } catch (e) {
-                    console.error(`Failed to parse field: ${field}`);
-                    return field;
-                }
-            };
+parseCompanyResults: (results) => {
+    return results.map(async (company) => {
+        const safeParse = (field) => {
+            if (!field || typeof field !== 'string') return field;
+            try {
+                return JSON.parse(field);
+            } catch (e) {
+                console.error(`Failed to parse field: ${field}`);
+                return field;
+            }
+        };
 
-            return {
-                ...company,
-                registeredOfficeAddress: safeParse(company.registeredOfficeAddress),
-                billingAddress: safeParse(company.billingAddress),
-                shippingAddress: safeParse(company.shippingAddress),
-                ContactNumbers: safeParse(company.ContactNumbers),
-                products: safeParse(company.products)
-            };
-        });
-    }
+        // Get payment details and images
+        const paymentDetails = await Company.getPaymentDetails(company.id);
+        const paymentImages = await Company.getPaymentImages(company.id);
+
+        return {
+            ...company,
+            registeredOfficeAddress: safeParse(company.registeredOfficeAddress),
+            billingAddress: safeParse(company.billingAddress),
+            shippingAddress: safeParse(company.shippingAddress),
+            ContactNumbers: safeParse(company.ContactNumbers),
+            products: safeParse(company.products),
+            paymentMethod: paymentDetails?.payment_method || 'cod',
+            paymentReference: paymentDetails?.payment_reference || '',
+            paymentStatus: paymentDetails?.payment_status || 'pending',
+            paymentImages: paymentImages || []
+        };
+    });
+},
+    // Add these methods to your Company model
+addPaymentImages: async (companyId, files) => {
+    const query = "INSERT INTO payment_images (company_id, image_path) VALUES ?";
+    const values = files.map(file => [companyId, `/payment-images/${file.filename}`]);
+    await db.query(query, [values]);
+},
+
+updatePaymentDetails: async (id, paymentData) => {
+    const query = `
+        UPDATE partnerdata 
+        SET payment_method = ?, payment_reference = ?, payment_status = ?
+        WHERE id = ?
+    `;
+    await db.query(query, [
+        paymentData.paymentMethod,
+        paymentData.paymentReference,
+        paymentData.paymentStatus || 'pending',
+        id
+    ]);
+},
+getPaymentDetails: async (id) => {
+    const [result] = await db.query(`
+        SELECT payment_method, payment_reference, payment_status 
+        FROM partnerdata WHERE id = ?
+    `, [id]);
+    return result[0];
+},
+
+getPaymentImages: async (id) => {
+    const [results] = await db.query(`
+        SELECT image_path FROM payment_images WHERE company_id = ?
+    `, [id]);
+    return results.map(row => row.image_path);
+}
 };
 
 module.exports = Company;

@@ -1,9 +1,10 @@
 const db = require("../config/db");
 const Company = require("../models/companyModel");
-const {companySchema,updateCompanySchema }= require("../validations/companyValidation");
+const paymentUpload = require('../config/paymentUpload');
+const { companySchema, updateCompanySchema } = require("../validations/companyValidation");
 const sendCompanyEmail = require("../services/mailer");
 const ExcelJS = require('exceljs');
-
+const fs = require('fs');
 // Helper function to get next serial number
 const getNextCompanySerialNumber = async (partnerId) => {
     const query = "SELECT MAX(serialNumber) AS maxSerialNumber FROM partnerdata WHERE partnerId = ?";
@@ -11,20 +12,28 @@ const getNextCompanySerialNumber = async (partnerId) => {
     return results[0].maxSerialNumber ? results[0].maxSerialNumber + 1 : 1;
 };
 
-// Create Company
 const createCompany = async (req, res) => {
     console.log('1. Starting company creation process');
+    
     try {
         console.log('2. Validating request body');
         const { error } = companySchema.validate(req.body);
         if (error) {
             console.log('Validation failed:', error.details);
+            
+            // Return file info instead of deleting (for potential reuse)
+            const uploadedFiles = req.files?.map(file => ({
+                filename: file.filename,
+                path: `/payment-images/${file.filename}`
+            }));
+            
             return res.status(400).json({ 
                 success: false,
-                message: error.details[0].message 
+                message: "Validation failed",
+                errors: error.details,
+                uploadedFiles
             });
         }
-
         console.log('3. Getting partner info');
         const partnerId = req.user.id;
         const [partnerResult] = await db.query('SELECT username FROM users WHERE id = ?', [partnerId]);
@@ -32,9 +41,17 @@ const createCompany = async (req, res) => {
 
         if (!partnerResult || partnerResult.length === 0) {
             console.log('Partner not found in database');
-            return res.status(404).json({ 
+
+            // Clean up files if partner not found
+            if (req.files) {
+                req.files.forEach(file => {
+                    fs.unlinkSync(file.path);
+                });
+            }
+
+            return res.status(404).json({
                 success: false,
-                message: "Partner user not found" 
+                message: "Partner user not found"
             });
         }
 
@@ -56,13 +73,15 @@ const createCompany = async (req, res) => {
             grandTotalPrice,
             partnerId,
             partnerName: partnerResult[0].username,
-            registeredOfficeAddress: req.body.sameAsBilling 
-                ? req.body.billingAddress 
+            registeredOfficeAddress: req.body.sameAsBilling
+                ? req.body.billingAddress
                 : req.body.registeredOfficeAddress,
-            shippingAddress: req.body.sameAsBilling 
-                ? req.body.billingAddress 
+            shippingAddress: req.body.sameAsBilling
+                ? req.body.billingAddress
                 : req.body.shippingAddress,
-            contactNumbers: req.body.ContactNumbers
+            contactNumbers: req.body.ContactNumbers,
+            paymentMethod: req.body.paymentMethod || 'cod',
+            paymentReference: req.body.paymentReference || null
         };
         console.log('Prepared company data:', JSON.stringify(companyData, null, 2));
 
@@ -74,43 +93,80 @@ const createCompany = async (req, res) => {
         const result = await Company.create(companyData, serialNumber);
         console.log('Database insert result:', result);
 
+        // Save payment details
+        await Company.updatePaymentDetails(result.insertId, {
+            paymentMethod: companyData.paymentMethod,
+            paymentReference: companyData.paymentReference,
+            paymentStatus: 'pending'
+        });
+
+        // Save payment images if any
+        // Save payment images if any
+        if (req.files?.length > 0) {
+            console.log('Saving payment images:', req.files.length);
+            try {
+                await Company.addPaymentImages(result.insertId, req.files);
+                console.log('Payment images saved to database');
+            } catch (dbError) {
+                console.error('Failed to save payment images:', dbError);
+                // Consider whether to proceed or fail the request
+            }
+        }
+
         console.log('8. Sending confirmation email');
-        await sendCompanyEmail(companyData);
+        const companyWithImages = {
+            ...companyData,
+            id: result.insertId,
+            paymentImages: req.files ? req.files.map(f => `/payment-images/${f.filename}`) : []
+        };
+        await sendCompanyEmail(companyWithImages);
 
         console.log('9. Returning success response');
-        return res.status(201).json({ 
+        return res.status(201).json({
             success: true,
             message: "Company created successfully",
             data: {
                 id: result.insertId,
                 serialNumber,
-                grandTotalPrice
+                grandTotalPrice,
+                paymentMethod: companyData.paymentMethod,
+                paymentReference: companyData.paymentReference,
+                paymentImages: req.files ? req.files.map(f => `/payment-images/${f.filename}`) : []
             }
         });
 
+
     } catch (err) {
-        console.error('10. Error occurred:', {
-            message: err.message,
-            stack: err.stack,
-            requestBody: req.body,
-            user: req.user
-        });
-        return res.status(500).json({ 
+        console.error('10. Error occurred:', err);
+
+        // Clean up files only on server errors (500), not validation errors (400)
+        if (err.status !== 400 && req.files) {
+            req.files.forEach(file => {
+                try {
+                    fs.unlinkSync(file.path);
+                } catch (cleanupErr) {
+                    console.error('Error cleaning up file:', cleanupErr);
+                }
+            });
+        }
+
+        const status = err.status || 500;
+        return res.status(status).json({
             success: false,
-            message: "Failed to create company",
-            error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+            message: err.message || "Failed to create company"
         });
     }
 };
 // Get all companies (public)
 const getAllCompaniesPublic = async (req, res) => {
     try {
-        const results = await Company.getAll();
-        
+        let results = await Company.getAll();
+        results = await Promise.all(results); // Wait for all payment data to be fetched
+
         if (!results || results.length === 0) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: "No companies found" 
+                message: "No companies found"
             });
         }
 
@@ -121,7 +177,7 @@ const getAllCompaniesPublic = async (req, res) => {
         });
     } catch (err) {
         console.error("Error fetching companies:", err);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: "Failed to fetch companies",
             error: process.env.NODE_ENV === 'development' ? err.message : null
@@ -149,7 +205,7 @@ const getAllCompaniesWithOwnership = async (req, res) => {
         console.log(`Found ${results.length} companies`); // Debug log
 
         if (!results || results.length === 0) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
                 message: "No companies found for the current user",
                 userRole,
@@ -169,7 +225,7 @@ const getAllCompaniesWithOwnership = async (req, res) => {
             userId: req.user.id,
             role: req.user.role
         });
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: "Failed to fetch companies",
             error: process.env.NODE_ENV === 'development' ? err.message : null
@@ -187,9 +243,9 @@ const getCompanyByIdWithOwnership = async (req, res) => {
         console.log(`Fetch request for company ${companyId} by user ${userId} (${userRole})`);
 
         if (!companyId || isNaN(companyId)) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                message: "Invalid company ID" 
+                message: "Invalid company ID"
             });
         }
 
@@ -197,18 +253,18 @@ const getCompanyByIdWithOwnership = async (req, res) => {
         console.log('Company found:', company ? company.id : 'null');
 
         if (!company) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: "Company not found" 
+                message: "Company not found"
             });
         }
 
         // Ownership check
         if (userRole === 'salesuser' && company.partnerId !== userId) {
             console.warn(`User ${userId} unauthorized to access company ${companyId}`);
-            return res.status(403).json({ 
+            return res.status(403).json({
                 success: false,
-                message: "Access denied - not your company" 
+                message: "Access denied - not your company"
             });
         }
 
@@ -224,14 +280,38 @@ const getCompanyByIdWithOwnership = async (req, res) => {
             params: req.params,
             user: req.user
         });
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: "Failed to fetch company",
             error: process.env.NODE_ENV === 'development' ? error.message : null
         });
     }
 };
+getById: async (id) => {
+    try {
+        const query = "SELECT * FROM partnerdata WHERE id = ?";
+        const [results] = await db.query(query, [id]);
+        if (results.length === 0) {
+            return null;
+        }
+        const company = results[0];
+        
+        // Get payment details and images
+        const paymentDetails = await Company.getPaymentDetails(id);
+        const paymentImages = await Company.getPaymentImages(id);
 
+        return {
+            ...Company.parseCompanyResults(results)[0],
+            paymentMethod: paymentDetails?.payment_method || 'cod',
+            paymentReference: paymentDetails?.payment_reference || '',
+            paymentStatus: paymentDetails?.payment_status || 'pending',
+            paymentImages: paymentImages || []
+        };
+    } catch (err) {
+        console.error(`Error getting company data by ID ${id}:`, err);
+        throw err;
+    }
+};
 // controllers/companyController.js
 const updateCompanyByIdWithOwnership = async (req, res) => {
     try {
@@ -242,31 +322,31 @@ const updateCompanyByIdWithOwnership = async (req, res) => {
         // Verify company exists and user has access
         const existingCompany = await Company.getById(companyId);
         if (!existingCompany) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: "Company not found" 
+                message: "Company not found"
             });
         }
 
         if (userRole === 'salesuser' && existingCompany.partnerId !== userId) {
-            return res.status(403).json({ 
+            return res.status(403).json({
                 success: false,
-                message: "Access denied" 
+                message: "Access denied"
             });
         }
 
         // Validate the update data
         const { error } = updateCompanySchema.validate(req.body);
         if (error) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                message: error.details[0].message 
+                message: error.details[0].message
             });
         }
 
         // Prepare update data (only include provided fields)
         const updateData = {};
-        
+
         // Copy only the fields that were actually provided in the request
         Object.keys(req.body).forEach(key => {
             if (req.body[key] !== undefined) {
@@ -292,7 +372,7 @@ const updateCompanyByIdWithOwnership = async (req, res) => {
 
         // Get the updated company data to send in email
         const updatedCompany = await Company.getById(companyId);
-        
+
         // Send update confirmation email
         try {
             await sendCompanyEmail(updatedCompany, 'update');
@@ -310,7 +390,7 @@ const updateCompanyByIdWithOwnership = async (req, res) => {
 
     } catch (error) {
         console.error("Update error:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: "Failed to update company",
             error: process.env.NODE_ENV === 'development' ? error.message : null
@@ -343,14 +423,14 @@ const getPartnerDashboard = async (req, res) => {
 
         let results;
         if (userRole === 'adminsales') {
-            // Adminsales can see all salesuser's companies
             results = await Company.getAllByRole('salesuser');
         } else if (userRole === 'salesuser') {
-            // Salesuser can only see their own companies
             results = await Company.getAllByPartner(userId);
         } else {
             return res.status(403).json({ message: "Unauthorized role" });
         }
+
+        results = await Promise.all(results); // Wait for all payment data
 
         if (!results || results.length === 0) {
             return res.status(404).json({ message: "No companies found" });
@@ -366,12 +446,13 @@ const getPartnerDashboard = async (req, res) => {
 const getAdminSalesDashboard = async (req, res) => {
     try {
         const userId = req.user.id;
-        const results = await Company.getAllByPartner(userId);
+        let results = await Company.getAllByPartner(userId);
+        results = await Promise.all(results); // Wait for all payment data
 
         if (!results || results.length === 0) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: "No companies found for your admin account" 
+                message: "No companies found for your admin account"
             });
         }
 
@@ -380,10 +461,9 @@ const getAdminSalesDashboard = async (req, res) => {
             count: results.length,
             data: results
         });
-
     } catch (err) {
         console.error("Admin Sales Dashboard error:", err);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: "Failed to load admin dashboard",
             error: process.env.NODE_ENV === 'development' ? err.message : null
@@ -414,14 +494,14 @@ const exportCompaniesToExcel = async (req, res) => {
 
         // Enhanced headers with more detailed fields
         const headers = [
-            "ID", "Serial Number", "Company Name", "Firm Type", 
-            "Nature of Business", "GST No", "Email",
+            "ID", "Serial Number", "Company Name", "Firm Type",
+            "Nature of Business", "GST No", "Email","Payment Method", "Payment Reference", "Payment Status", "Payment Images",
             "Registered Address", "Registered City", "Registered State", "Registered Pin",
             "Billing Address", "Billing City", "Billing State", "Billing Pin",
             "Shipping Address", "Shipping City", "Shipping State", "Shipping Pin",
-            "Same As Billing", 
+            "Same As Billing",
             "Primary Contact", "Secondary Contact", "Other Contacts",
-            "Product Details", "Total Quantity", "Total Amount (₹)", "GST Amount (₹)", 
+            "Product Details", "Total Quantity", "Total Amount (₹)", "GST Amount (₹)",
             "Grand Total (₹)", "Partner ID", "Partner Name",
             "Created At", "Updated At"
         ];
@@ -461,23 +541,23 @@ const exportCompaniesToExcel = async (req, res) => {
             let totalQuantity = 0;
             let totalAmount = 0;
             let gstAmount = 0;
-            
+
             try {
-                const products = typeof company.products === 'string' ? 
-                    JSON.parse(company.products) : 
+                const products = typeof company.products === 'string' ?
+                    JSON.parse(company.products) :
                     (company.products || []);
-                
-                productDetails = products.map(p => 
+
+                productDetails = products.map(p =>
                     `${p.name} (${p.modelNumber || 'N/A'}) - Qty: ${p.quantity}, Price: ₹${p.price}`
                 ).join("\n");
-                
+
                 totalQuantity = products.reduce((sum, p) => sum + (parseInt(p.quantity) || 0), 0);
                 totalAmount = products.reduce((sum, p) => {
                     const price = parseFloat(p.price) || 0;
                     const qty = parseInt(p.quantity) || 0;
                     return sum + (price * qty);
                 }, 0);
-                
+
                 gstAmount = products.reduce((sum, p) => {
                     if (p.gstIncluded) {
                         const price = parseFloat(p.price) || 0;
@@ -515,6 +595,10 @@ const exportCompaniesToExcel = async (req, res) => {
                 company.natureOfBusiness,
                 company.gstNo,
                 company.email,
+                company.paymentMethod || 'cod',
+company.paymentReference || '',
+company.paymentStatus || 'pending',
+company.paymentImages?.join("\n") || '',
                 regAddress.address || '',
                 regAddress.city || '',
                 regAddress.state || '',
@@ -556,9 +640,9 @@ const exportCompaniesToExcel = async (req, res) => {
         });
 
         // Set response headers
-        res.setHeader('Content-Type', 
+        res.setHeader('Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', 
+        res.setHeader('Content-Disposition',
             'attachment; filename=companies_export_' + new Date().toISOString().split('T')[0] + '.xlsx');
 
         await workbook.xlsx.write(res);

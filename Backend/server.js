@@ -1,14 +1,20 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const path = require("path"); // Add this line
+const path = require("path");
 require("dotenv").config();
 
+
+
+// Import routes
 const companyRoutes = require("./routes/companyRoutes");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
 const purchaseProductRoutes = require("./routes/purchaseProductRoutes");
+const grnRoutes = require("./routes/grnRoutes");
+const debitRoutes = require("./routes/debitNoteRoutes");
+const paymentRoutes = require("./routes/payment"); // Add this line
 
 const app = express();
 const port = process.env.PORT || 4001;
@@ -21,25 +27,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Add this static file serving middleware - CRUCIAL FOR IMAGES
+// Static file serving
 app.use('/api/signatures', express.static(path.join(__dirname, 'public/signatures')));
+app.use('/api/payment-images', express.static(path.join(__dirname, 'public/payment-images')));
 
 // Routes
-app.use("/api/auth", authRoutes); // Public auth routes
-app.use("/api", productRoutes); // Public product routes
+app.use("/api/auth", authRoutes);
+app.use("/api", productRoutes);
 app.use("/api", companyRoutes);
 app.use("/api", invoiceRoutes);
-app.use('/api', purchaseProductRoutes)
+app.use('/api', purchaseProductRoutes);
+app.use('/api', grnRoutes);
+app.use('/api', debitRoutes);
+app.use('/api', paymentRoutes);
 
-// Add error logging middleware
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
   res.status(500).json({ error: 'Internal Server Error' });
-});
-
-
-app.get('/test-image', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/signatures/test.png'));
 });
 
 // Start Server

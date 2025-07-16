@@ -10,9 +10,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import Person3Icon from '@mui/icons-material/Person3';
-import GroupIcon from '@mui/icons-material/Group';
-import CategoryIcon from '@mui/icons-material/Category';
+import Person3Icon from "@mui/icons-material/Person3";
+import GroupIcon from "@mui/icons-material/Group";
+import CategoryIcon from "@mui/icons-material/Category";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Sidebar = () => {
@@ -20,6 +20,8 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [productDropdownOpen, setProductDropdownOpen] = useState(false);
   const [partnerDropdownOpen, setPartnerDropdownOpen] = useState(false);
+  const [grnDropdownOpen, setGrnDropdownOpen] = useState(false);
+  const [debitDropdownOpen, setDebitDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -30,6 +32,13 @@ const Sidebar = () => {
     setProductDropdownOpen(!productDropdownOpen);
   };
 
+  const togglegrnDropdownOpen = () => {
+    setGrnDropdownOpen(!grnDropdownOpen);
+  };
+
+  const toggleDebitDropdown = () => {
+    setDebitDropdownOpen(!debitDropdownOpen);
+  };
   const togglePartnerDropdown = () => {
     setPartnerDropdownOpen(!partnerDropdownOpen);
   };
@@ -66,7 +75,7 @@ const Sidebar = () => {
               <span className="addpurchase-menu-text">Dashboard</span>
             </li>
           </ul>
-          
+
           <p className="addpurchase-title">Lists</p>
           <ul className="addpurchase-menu">
             <li
@@ -78,6 +87,59 @@ const Sidebar = () => {
             </li>
           </ul>
 
+          <li className="addpurchase-menu-item" onClick={togglegrnDropdownOpen}>
+            <PersonAddIcon className="addpurchase-menu-icon" />
+            <span className="addpurchase-menu-text">
+              GRN
+              <span className="dropdown-icon">
+                {grnDropdownOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </span>
+            </span>
+          </li>
+          {grnDropdownOpen && (
+            <>
+              <li
+                className="addpurchase-menu-item addpurchase-submenu-item"
+                onClick={() => navigateTo("/adminpurchase/create-grn")}
+              >
+                <PersonAddIcon className="addpurchase-menu-icon" />
+                <span className="addpurchase-menu-text">Create GRN</span>
+              </li>
+              <li
+                className="addpurchase-menu-item addpurchase-submenu-item"
+                onClick={() => navigateTo("/adminpurchase/all-grn")}
+              >
+                <GroupIcon className="addpurchase-menu-icon" />
+                <span className="addpurchase-menu-text">All GRN</span>
+              </li>
+            </>
+          )}
+
+          <li className="addpurchase-menu-item" onClick={toggleDebitDropdown}>
+            <DashboardIcon className="addpurchase-menu-icon" />
+            <span className="addpurchase-menu-text">
+              Debit-Note
+              {debitDropdownOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </span>
+          </li>
+          {debitDropdownOpen && (
+            <>
+              <li
+                className="addpurchase-menu-item addpurchase-submenu-item"
+              onClick={() => navigateTo("/adminpurchase/all-grn")}
+              >
+                <PersonAddIcon className="addpurchase-menu-icon" />
+                <span className="addpurchase-menu-text">Create Debit Note</span>
+              </li>
+              <li
+                className="addpurchase-menu-item addpurchase-submenu-item"
+                onClick={() => navigateTo("/adminpurchase/all-debit")}
+              >
+                <CategoryIcon className="addpurchase-menu-icon" />
+                <span className="addpurchase-menu-text">Get Debit Notes</span>
+              </li>
+            </>
+          )}
           <li className="addpurchase-menu-item" onClick={toggleProductDropdown}>
             <InventoryIcon className="addpurchase-menu-icon" />
             <span className="addpurchase-menu-text">
@@ -104,6 +166,7 @@ const Sidebar = () => {
             </>
           )}
 
+          {/* ------------------------- */}
           <li className="addpurchase-menu-item" onClick={togglePartnerDropdown}>
             <PersonAddIcon className="addpurchase-menu-icon" />
             <span className="addpurchase-menu-text">
@@ -140,7 +203,10 @@ const Sidebar = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="addpurchase-sidebar-overlay show" onClick={toggleSidebar}></div>
+        <div
+          className="addpurchase-sidebar-overlay show"
+          onClick={toggleSidebar}
+        ></div>
       )}
     </>
   );

@@ -41,17 +41,32 @@ import GetPartnerP from "./pages/adminpurchase/partner/get-all-partner/GetPartne
 import CreatePurchaseProduct from "./pages/adminpurchase/purchaseProductList/createPurchaseProduct/createPurchaseProduct.jsx";
 import AllPurchaseProducts from "./pages/adminpurchase/purchaseProductList/allPurchaseProducts/AllPurchaseProducts.jsx";
 import EditPurchaseProduct from "./pages/adminpurchase/purchaseProductList/editPurchaseProduct/EditPurchaseProduct.jsx";
+import CreateGrn from "./pages/adminpurchase/grn/creategrn/CreateGrn.jsx";
+import GetGrn from "./pages/adminpurchase/grn/getgrn/GetGrn.jsx";
+import ViewGrn from "./pages/adminpurchase/grn/viewgrn/ViewGrn.jsx";
+import EditGrn from "./pages/adminpurchase/grn/editgrn/EditGrn.jsx";
+import CreateDebit from "./pages/adminpurchase/debit/createdebit/CreateDebit.jsx";
+import GetDebit from "./pages/adminpurchase/debit/getdebit/GetDebit.jsx";
+import ViewDebit from "./pages/adminpurchase/debit/viewdebit/ViewDebit.jsx";
+import EditDebit from "./pages/adminpurchase/debit/editdebit/EditDebit.jsx";
 
 // User Purchase all pages
 import HomePurchaseUser from "./pages/purchaseuser/home/Home.jsx";
-// import InvoiceCreateU from "./pages/purchaseuser/invoice/invoicecreate/InvoiceCreate.jsx";
+import InvoiceCreateU from "./pages/purchaseuser/invoice/invoicecreate/InvoiceCreate.jsx";
 import GetInvoiceU from "./pages/purchaseuser/invoice/getInvoice/GetInvoice.jsx";
 import ViewInvoiceU from "./pages/purchaseuser/invoice/viewinvoice/ViewInvoice.jsx";
 import EditInvoiceU from "./pages/purchaseuser/invoice/editInvoice/EditInvoice.jsx";
 import CreatePurchaseProductU from "./pages/purchaseuser/purchaseProductList/createPurchaseProduct/createPurchaseProduct.jsx";
 import AllPurchaseProductsU from "./pages/purchaseuser/purchaseProductList/allPurchaseProducts/AllPurchaseProducts.jsx";
 import EditPurchaseProductU from "./pages/purchaseuser/purchaseProductList/editPurchaseProduct/EditPurchaseProduct.jsx";
-
+import CreateGrnUser from "./pages/purchaseuser/grn/creategrn/CreateGrn.jsx";
+import GetGrnUser from "./pages/purchaseuser/grn/getgrn/GetGrn.jsx";
+import ViewGrnUser from "./pages/purchaseuser/grn/viewgrn/ViewGrn.jsx";
+import EditGrnUser from "./pages/purchaseuser/grn/editgrn/EditGrn.jsx";
+import CreateDebitUser from "./pages/purchaseuser/debit/createdebit/CreateDebit.jsx";
+import GetDebitUser from "./pages/purchaseuser/debit/getdebit/GetDebit.jsx";
+import ViewDebitUser from "./pages/purchaseuser/debit/viewdebit/ViewDebit.jsx";
+import EditDebitUser from "./pages/purchaseuser/debit/editdebit/EditDebit.jsx";
 
 // Super Admin All Pages..
 
@@ -63,7 +78,6 @@ import GetPartnerS from "./pages/superadmin/partner/get-all-partner/GetPartner.j
 import GetInvoiceS from "./pages/superadmin/getInvoice/GetInvoice.jsx";
 import ViewInvoiceS from "./pages/superadmin/viewinvoice/ViewInvoice.jsx";
 import AllProductsSalesS from "./pages/superadmin/productsall/ProductsAll.jsx";
-
 
 // Page not found
 import NotFound from "./pagesNotFound.jsx";
@@ -182,6 +196,14 @@ function App() {
           <Route path="create-pp" element={<CreatePurchaseProduct />} />
           <Route path="get-all-pp" element={<AllPurchaseProducts />} />
           <Route path="edit-all-pp/:id" element={<EditPurchaseProduct />} />
+          <Route path="all-grn" element={<GetGrn />} />
+          <Route path="create-grn" element={<CreateGrn />} />
+          <Route path="view-grn/:id" element={<ViewGrn />} />
+          <Route path="edit-grn/:id" element={<EditGrn />} />
+          <Route path="all-debit" element={<GetDebit />} />
+          <Route path="create-debit" element={<CreateDebit />} />
+          <Route path="view-debit/:id" element={<ViewDebit />} />
+          <Route path="edit-debit/:id" element={<EditDebit />} />
         </Route>
         {/* Purchase Users  Routes */}
         <Route
@@ -197,16 +219,24 @@ function App() {
           <Route index element={<GetInvoiceU />} />
           <Route path="all-products" element={<AllProductsSales />} />
           <Route path="all-invoice" element={<GetInvoiceU />} />
-          {/* <Route path="create-invoice" element={<InvoiceCreateU />} /> */}
+          <Route path="create-invoice" element={<InvoiceCreateU />} />
           <Route path="view-invoice/:id" element={<ViewInvoiceU />} />
           <Route path="edit-invoice/:id" element={<EditInvoiceU />} />
           <Route path="create-pp" element={<CreatePurchaseProductU />} />
           <Route path="get-all-pp" element={<AllPurchaseProductsU />} />
           <Route path="edit-all-pp/:id" element={<EditPurchaseProductU />} />
+          <Route path="all-grn" element={<GetGrnUser />} />
+          <Route path="create-grn" element={<CreateGrnUser />} />
+          <Route path="view-grn/:id" element={<ViewGrnUser />} />
+          <Route path="edit-grn/:id" element={<EditGrnUser />} />
+          <Route path="all-debit" element={<GetDebitUser />} />
+          <Route path="create-debit" element={<CreateDebitUser />} />
+          <Route path="view-debit/:id" element={<ViewDebitUser />} />
+          <Route path="edit-debit/:id" element={<EditDebitUser />} />
         </Route>
 
-             {/* Super Admin  Routes */}
-             <Route
+        {/* Super Admin  Routes */}
+        <Route
           path="/superadmin"
           element={
             <ProtectedRoute allowedRoles={["superadmin"]}>
@@ -220,12 +250,10 @@ function App() {
           <Route path="all-user" element={<GetAllUsers />} />
           <Route path="create-partner" element={<CreatepartnerS />} />
           <Route path="edit-partner/:id" element={<EditPartnerS />} />
-          <Route path="get-all-partner" element={<GetPartnerS/>} />
-              <Route path="view-invoice/:id" element={<ViewInvoiceS />} />
-              <Route path="all-invoice" element={<GetInvoiceS />} />
-              <Route path="all-products" element={<AllProductsSalesS />} />
-    
-     
+          <Route path="get-all-partner" element={<GetPartnerS />} />
+          <Route path="view-invoice/:id" element={<ViewInvoiceS />} />
+          <Route path="all-invoice" element={<GetInvoiceS />} />
+          <Route path="all-products" element={<AllProductsSalesS />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -36,6 +36,12 @@ const companySchema = Joi.object({
         })
     ).min(1).required(),
     grandTotalPrice: Joi.number().optional(),  // ✅ Added grand total
+      paymentMethod: Joi.string().valid('cod', 'cheque', 'online').default('cod'),
+    paymentReference: Joi.when('paymentMethod', {
+        is: Joi.not('cod'),
+        then: Joi.string().required(),
+        otherwise: Joi.string().allow('').optional()
+    }),
     partnerId: Joi.number().optional(),
     partnerName: Joi.string().optional(),
     serialNumber: Joi.number().optional(),
@@ -44,40 +50,46 @@ const companySchema = Joi.object({
 });
 
 const updateCompanySchema = Joi.object({
-    companyName: Joi.string(),
-    firmType: Joi.string(),
+    companyName: Joi.string().optional(),
+    firmType: Joi.string().optional(),
     registeredOfficeAddress: Joi.object({
-        address: Joi.string(),
-        State: Joi.string(),
-        pinCode: Joi.string().length(6).pattern(/^[0-9]+$/)
-    }),
+        address: Joi.string().optional(),
+        State: Joi.string().optional(),
+        pinCode: Joi.string().length(6).pattern(/^[0-9]+$/).optional()
+    }).optional(),
     billingAddress: Joi.object({
-        address: Joi.string(),
-        State: Joi.string(),
-        pinCode: Joi.string().length(6).pattern(/^[0-9]+$/)
-    }),
+        address: Joi.string().optional(),
+        State: Joi.string().optional(),
+        pinCode: Joi.string().length(6).pattern(/^[0-9]+$/).optional()
+    }).optional(),
     shippingAddress: Joi.object({
-        address: Joi.string(),
-        State: Joi.string(),
-        pinCode: Joi.string().length(6).pattern(/^[0-9]+$/)
-    }),
-    sameAsBilling: Joi.boolean(),
-    natureOfBusiness: Joi.string(),
-    gstNo: Joi.string().length(15).pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/).allow(''),
-    email: Joi.string().email().allow(''),
-    ContactNumbers: Joi.array().items(Joi.string().length(10).pattern(/^[0-9]+$/)),
+        address: Joi.string().optional(),
+        State: Joi.string().optional(),
+        pinCode: Joi.string().length(6).pattern(/^[0-9]+$/).optional()
+    }).optional(),
+    sameAsBilling: Joi.boolean().optional(),
+    natureOfBusiness: Joi.string().optional(),
+    gstNo: Joi.string().length(15).pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/).allow('').optional(),
+    email: Joi.string().email().allow('').optional(),
+    ContactNumbers: Joi.array().items(Joi.string().length(10).pattern(/^[0-9]+$/)).optional(),
     products: Joi.array().items(
         Joi.object({
-            name: Joi.string(),
-            modelNumber: Joi.string(),
-            quantity: Joi.number().min(1),
-            price: Joi.number().min(0),
-            gstIncluded: Joi.boolean(),
-            totalPrice: Joi.number()
+            name: Joi.string().optional(),
+            modelNumber: Joi.string().optional(),
+            quantity: Joi.number().min(1).optional(),
+            price: Joi.number().min(0).optional(),
+            gstIncluded: Joi.boolean().optional(),
+            totalPrice: Joi.number().optional()
         })
-    ),
-    grandTotalPrice: Joi.number()
-}).min(1); // At least one field must be provided
+    ).optional(),
+    grandTotalPrice: Joi.number().optional(),
+    paymentMethod: Joi.string().valid('cod', 'cheque', 'online').default('cod').optional(),
+    paymentReference: Joi.when('paymentMethod', {
+        is: Joi.not('cod'),
+        then: Joi.string().required(),
+        otherwise: Joi.string().allow('').optional()
+    }).optional()
+}).options({ allowUnknown: false });
 
 module.exports = { companySchema, updateCompanySchema };
 

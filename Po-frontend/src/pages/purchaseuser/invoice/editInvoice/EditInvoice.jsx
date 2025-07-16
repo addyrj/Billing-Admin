@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback  } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import img1 from "../../../../Assets/logo_01.png";
-
-
+import Loader from "../../../../loader/Loader";
 const EditInvoice = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,6 +28,7 @@ const EditInvoice = () => {
     supplierAddress: "",
     contactPerson: "",
     contactNo: "",
+    whatsappNo: "",
     email: "",
     prNo: "",
     supplierOfferDate: "",
@@ -45,69 +45,78 @@ const EditInvoice = () => {
   });
 
   // Fetch existing PO data
-  useEffect(() => {
-    const fetchPOData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/get-pobyid/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-  
-        if (!response.ok) {
-          throw new Error("Failed to fetch PO data");
-        }
-  
-        const data = await response.json();
-        const poData = data.data || data;
-        
-        const formattedData = {
-          ...poData,
-          date: poData.date ? poData.date.split('T')[0] : '',
-          supplierOfferDate: poData.supplierOfferDate ? poData.supplierOfferDate.split('T')[0] : '',
-          items: Array.isArray(poData.items) ? poData.items : JSON.parse(poData.items || '[]')
-        };
-        
-        setInvoiceData(formattedData);
-  
-        // Set existing signatures with full URLs
-        if (poData.preparedBySignature) {
-          setPreparedBySignature(
-            poData.preparedBySignature.startsWith('data:') 
-              ? poData.preparedBySignature 
-              : `${import.meta.env.VITE_API_BASE_URL}${poData.preparedBySignature}`
-          );
-        }
-        if (poData.verifiedBySignature) {
-          setVerifiedBySignature(
-            poData.verifiedBySignature.startsWith('data:') 
-              ? poData.verifiedBySignature 
-              : `${import.meta.env.VITE_API_BASE_URL}${poData.verifiedBySignature}`
-          );
-        }
-        if (poData.authorizedSignature) {
-          setAuthorizedSignature(
-            poData.authorizedSignature.startsWith('data:') 
-              ? poData.authorizedSignature 
-              : `${import.meta.env.VITE_API_BASE_URL}${poData.authorizedSignature}`
-          );
-        }
-  
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching PO data:", error);
-        setMessage({ text: "Failed to load PO data", type: "error" });
-        setIsLoading(false);
+const fetchPOData = useCallback(async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/get-pobyid/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    };
-  
-    fetchPOData();
-  }, [id]);
+    );
 
+    if (!response.ok) {
+      throw new Error("Failed to fetch PO data");
+    }
+
+    const data = await response.json();
+    const poData = data.data || data;
+
+    const formattedData = {
+      ...poData,
+      date: poData.date ? poData.date.split("T")[0] : "",
+      supplierOfferDate: poData.supplierOfferDate
+        ? poData.supplierOfferDate.split("T")[0]
+        : "",
+      items: Array.isArray(poData.items)
+        ? poData.items.map(item => ({
+            ...item,
+            itemcode: item.itemcode || "RM00"
+          }))
+        : JSON.parse(poData.items || "[]").map(item => ({
+            ...item,
+            itemcode: item.itemcode || "RM00"
+          })),
+    };
+
+    setInvoiceData(formattedData);
+
+    // Set existing signatures with full URLs
+    if (poData.preparedBySignature) {
+      setPreparedBySignature(
+        poData.preparedBySignature.startsWith("data:")
+          ? poData.preparedBySignature
+          : `${import.meta.env.VITE_API_BASE_URL}${poData.preparedBySignature}`
+      );
+    }
+    if (poData.verifiedBySignature) {
+      setVerifiedBySignature(
+        poData.verifiedBySignature.startsWith("data:")
+          ? poData.verifiedBySignature
+          : `${import.meta.env.VITE_API_BASE_URL}${poData.verifiedBySignature}`
+      );
+    }
+    if (poData.authorizedSignature) {
+      setAuthorizedSignature(
+        poData.authorizedSignature.startsWith("data:")
+          ? poData.authorizedSignature
+          : `${import.meta.env.VITE_API_BASE_URL}${poData.authorizedSignature}`
+      );
+    }
+
+    setIsLoading(false);
+  } catch (error) {
+    console.error("Error fetching PO data:", error);
+    setMessage({ text: "Failed to load PO data", type: "error" });
+    setIsLoading(false);
+  }
+}, [id]); // Add id as a dependency
+
+  useEffect(() => {
+    fetchPOData();
+  }, [fetchPOData]);
   // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
@@ -142,7 +151,7 @@ const EditInvoice = () => {
 
   // Address change handler
   useEffect(() => {
-    const address = (invoiceData.supplierAddress || '').toLowerCase();
+    const address = (invoiceData.supplierAddress || "").toLowerCase();
     setIsDelhiSupplier(address.includes("delhi"));
   }, [invoiceData.supplierAddress]);
 
@@ -263,6 +272,7 @@ const EditInvoice = () => {
       "supplierAddress",
       "contactPerson",
       "contactNo",
+      "whatsappNo",
       "email",
       "paymentTerms",
       "deliveryPeriod",
@@ -318,14 +328,19 @@ const EditInvoice = () => {
       if (!item.quantity || item.quantity <= 0) {
         errors[`items[${index}].quantity`] = "Valid quantity is required";
       }
-      if (isDelhiSupplier) {
-        if (!item.cgst || item.cgst < 0)
-          errors[`items[${index}].cgst`] = "Valid CGST is required";
-        if (!item.sgst || item.sgst < 0)
-          errors[`items[${index}].sgst`] = "Valid SGST is required";
-      } else if (!item.igst || item.igst < 0) {
-        errors[`items[${index}].igst`] = "Valid IGST is required";
-      }
+   if (isDelhiSupplier) {
+  if (item.cgst === undefined || item.cgst === null || item.cgst < 0) {
+    errors[`items[${index}].cgst`] = "Valid CGST is required";
+  }
+  if (item.sgst === undefined || item.sgst === null || item.sgst < 0) {
+    errors[`items[${index}].sgst`] = "Valid SGST is required";
+  }
+} else {
+  if (item.igst === undefined || item.igst === null || item.igst < 0) {
+    errors[`items[${index}].igst`] = "Valid IGST is required";
+  }
+}
+
     });
 
     if (invoiceData.items.length === 0) {
@@ -375,39 +390,56 @@ const EditInvoice = () => {
     }
   };
 
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...invoiceData.items];
-    updatedItems[index][field] = value;
+const handleItemChange = (index, field, value) => {
+  const updatedItems = [...invoiceData.items];
+  updatedItems[index][field] = value;
 
-    if (["rate", "quantity", "cgst", "sgst", "igst"].includes(field)) {
-      const item = updatedItems[index];
-      const subtotal = item.rate * item.quantity;
-      const taxAmount = isDelhiSupplier
-        ? subtotal * (item.cgst / 100) + subtotal * (item.sgst / 100)
-        : subtotal * (item.igst / 100);
-
-      updatedItems[index].total = subtotal + taxAmount;
+  // Recalculate total whenever rate, quantity, or tax rates change
+  if (['rate', 'quantity', 'cgst', 'sgst', 'igst'].includes(field)) {
+    const item = updatedItems[index];
+    const subtotal = item.rate * item.quantity;
+    
+    let taxAmount = 0;
+    if (isDelhiSupplier) {
+      // For Delhi suppliers: CGST + SGST
+      taxAmount = subtotal * (item.cgst / 100) + subtotal * (item.sgst / 100);
+    } else {
+      // For non-Delhi suppliers: IGST
+      taxAmount = subtotal * (item.igst / 100);
     }
 
-    const totalAmount = updatedItems.reduce(
-      (sum, item) => sum + (item.total || 0),
-      0
-    );
+    updatedItems[index].total = subtotal + taxAmount;
+  }
 
-    setInvoiceData((prev) => ({
-      ...prev,
-      items: updatedItems,
-      totalAmount,
-    }));
+  const totalAmount = updatedItems.reduce(
+    (sum, item) => sum + (item.total || 0),
+    0
+  );
 
-    if (validationErrors[`items[${index}].${field}`]) {
-      setValidationErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[`items[${index}].${field}`];
-        return newErrors;
-      });
-    }
-  };
+  setInvoiceData((prev) => ({
+    ...prev,
+    items: updatedItems,
+    totalAmount,
+  }));
+
+  // Clear validation error if it exists
+  if (validationErrors[`items[${index}].${field}`]) {
+    setValidationErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[`items[${index}].${field}`];
+      return newErrors;
+    });
+  }
+  
+  // Clear total validation error if it exists
+  if (validationErrors[`items[${index}].total`]) {
+    setValidationErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[`items[${index}].total`];
+      return newErrors;
+    });
+  }
+};
 
   // Item management
   const addItem = () => {
@@ -419,6 +451,7 @@ const EditInvoice = () => {
           id: Date.now(),
           description: "",
           productname: "",
+           itemcode: "RM00",
           units: "",
           rate: 0,
           quantity: 0,
@@ -453,66 +486,65 @@ const EditInvoice = () => {
     }));
   };
 
-
   const updatePO = async () => {
     setIsLoading(true);
     setValidationErrors({});
     setMessage({ text: "", type: "" });
-  
+
     if (!validateForm()) {
       setIsLoading(false);
       return;
     }
-  
+
     try {
       // Prepare the update payload
       const payload = {
         // Copy all invoice data
         ...invoiceData,
-        
+
         // Explicitly exclude fields we never want to update
         id: undefined,
         poNo: undefined,
         created_at: undefined,
         updated_at: undefined,
-        
+
         // Handle signatures - only include if they're new uploads (data URLs)
-        preparedBySignature: preparedBySignature?.startsWith('data:') 
-          ? preparedBySignature 
+        preparedBySignature: preparedBySignature?.startsWith("data:")
+          ? preparedBySignature
           : undefined,
-        verifiedBySignature: verifiedBySignature?.startsWith('data:') 
-          ? verifiedBySignature 
+        verifiedBySignature: verifiedBySignature?.startsWith("data:")
+          ? verifiedBySignature
           : undefined,
-        authorizedSignature: authorizedSignature?.startsWith('data:') 
-          ? authorizedSignature 
-          : undefined
+        authorizedSignature: authorizedSignature?.startsWith("data:")
+          ? authorizedSignature
+          : undefined,
       };
-  
+
       // Remove undefined values to clean up the payload
       const cleanPayload = Object.fromEntries(
         Object.entries(payload).filter(([_, value]) => value !== undefined)
       );
-  
+
       const token = localStorage.getItem("token");
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/update-po/${id}`,
         {
           method: "PUT",
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(cleanPayload)
+          body: JSON.stringify(cleanPayload),
         }
       );
-  
+
       const result = await response.json();
-  
+
       if (!response.ok) {
         // Handle validation errors from backend
         if (result.errors) {
           const backendErrors = {};
-          result.errors.forEach(error => {
+          result.errors.forEach((error) => {
             backendErrors[error.field] = error.message;
           });
           setValidationErrors(backendErrors);
@@ -520,18 +552,19 @@ const EditInvoice = () => {
         }
         throw new Error(result.message || "Failed to update PO");
       }
-  
+
       setMessage({
         text: `PO ${invoiceData.poNo} updated successfully!`,
         type: "success",
       });
-  
+
       // Redirect after successful update
       setTimeout(() => navigate("/admin/get-invoice"), 2000);
     } catch (error) {
       console.error("Error updating PO:", error);
       setMessage({
-        text: error.message || "An unexpected error occurred. Please try again.",
+        text:
+          error.message || "An unexpected error occurred. Please try again.",
         type: "error",
       });
     } finally {
@@ -540,7 +573,13 @@ const EditInvoice = () => {
   };
 
   if (isLoading) {
-    return <div className="p-8">Loading PO data...</div>;
+    return <div className="p-8">Loading PO data...
+     <Loader
+        message="Submitting updated Purchase Order..."
+        color="#00a3c6"
+        background="rgba(255, 255, 255, 0.95)"
+      />
+    </div>;
   }
 
   return (
@@ -587,6 +626,7 @@ const EditInvoice = () => {
           </div>
           <div className="flex flex-center">
             <h2 className="text-xl font-bold text-black">Purchase Order</h2>
+               <div className="text-xl font-bold">PO Number: {invoiceData.poNo}</div>
           </div>
         </div>
 
@@ -680,6 +720,26 @@ const EditInvoice = () => {
                     )}
                   </td>
                 </tr>
+                   <tr className="border-b border-black">
+                  <td className="p-1 font-semibold">WhatsApp No:</td>
+                  <td className="p-1 font-semibold">
+                    <input
+                      type="number"
+                      name="whatsappNo"
+                      value={invoiceData.whatsappNo}
+                      onChange={handleInputChange}
+                      className={`w-full border-none focus:outline-none text-center text-black ${
+                        validationErrors.whatsappNo ? "error-input" : ""
+                      }`}
+                      placeholder="WhatsApp Number"
+                    />
+                    {validationErrors.whatsappNo && (
+                      <div className="error-message text-center">
+                        {validationErrors.whatsappNo}
+                      </div>
+                    )}
+                  </td>
+                </tr>
                 <tr className="border-b border-black">
                   <td className="p-1 font-semibold">Email:</td>
                   <td className="p-1 font-semibold">
@@ -722,27 +782,7 @@ const EditInvoice = () => {
                     )}
                   </td>
                 </tr>
-                <tr className="border-b border-black">
-                  <td className="p-1 font-semibold">Supplier Offer Date:</td>
-                  <td className="p-1 font-semibold">
-                    <input
-                      type="date"
-                      name="supplierOfferDate"
-                      value={invoiceData.supplierOfferDate}
-                      onChange={handleInputChange}
-                      max={invoiceData.date}
-                      className={`w-full border-none focus:outline-none text-center text-black ${
-                        validationErrors.supplierOfferDate ? "error-input" : ""
-                      }`}
-                      required
-                    />
-                    {validationErrors.supplierOfferDate && (
-                      <div className="error-message text-center">
-                        {validationErrors.supplierOfferDate}
-                      </div>
-                    )}
-                  </td>
-                </tr>
+            
                 <tr className="border-b border-black">
                   <td className="p-1 font-semibold">Payment Terms:</td>
                   <td className="p-1 font-semibold">
@@ -805,18 +845,26 @@ const EditInvoice = () => {
           <div className="border border-black">
             <table className="w-full">
               <tbody>
-                <tr className="border-b border-black">
-                  <td className="p-1 font-semibold">PO NO.:</td>
+              
+                    <tr className="border-b border-black">
+                  <td className="p-1 font-semibold">Supplier Offer Date:</td>
                   <td className="p-1 font-semibold">
                     <input
-                      type="text"
-                      name="poNo"
-                      value={invoiceData.poNo}
+                      type="date"
+                      name="supplierOfferDate"
+                      value={invoiceData.supplierOfferDate}
                       onChange={handleInputChange}
-                      className="w-full border-none focus:outline-none text-center text-black"
-                      placeholder="PO-IOTTECH/25-26"
-                      readOnly
+                      max={invoiceData.date}
+                      className={`w-full border-none focus:outline-none text-center text-black ${
+                        validationErrors.supplierOfferDate ? "error-input" : ""
+                      }`}
+                      required
                     />
+                    {validationErrors.supplierOfferDate && (
+                      <div className="error-message text-center">
+                        {validationErrors.supplierOfferDate}
+                      </div>
+                    )}
                   </td>
                 </tr>
                 <tr className="border-b border-black">
@@ -1029,284 +1077,328 @@ const EditInvoice = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <div className="flex justify-between items-center mb-1">
-            <div className="text-lg font-bold">Material and Pricing</div>
+      <div className="overflow-x-auto">
+  <div className="flex justify-between items-center mb-1">
+    <div className="text-lg font-bold">Material and Pricing</div>
+    <div className="flex gap-2">
+      <button
+        onClick={addItem}
+        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Add Material
+      </button>
+      <button
+        onClick={() => removeItem(0)}
+        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Remove Material
+      </button>
+    </div>
+  </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={addItem}
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Add Material
-              </button>
-              <button
-                onClick={() => removeItem(0)}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Remove Material
-              </button>
-            </div>
-          </div>
+  {validationErrors.items && (
+    <div className="error-message mb-2">{validationErrors.items}</div>
+  )}
+  
+  <table className="min-w-full border border-black">
+    <thead>
+      <tr>
+        <th className="border border-black p-2 w-12">S.No</th>
+        <th className="border border-black p-2 w-24">ItemCode</th>
+        <th className="border border-black p-2 w-1/4">Product Name</th>
+        <th className="border border-black p-2 w-1/3">Description</th>
+        <th className="border border-black p-2 w-20">Units</th>
+        <th className="border border-black p-2 w-20">Rate</th>
+        <th className="border border-black p-2 w-20">Quantity</th>
+        {isDelhiSupplier ? (
+          <>
+            <th className="border border-black p-2 w-20">CGST (%)</th>
+            <th className="border border-black p-2 w-20">SGST (%)</th>
+          </>
+        ) : (
+          <th className="border border-black p-2 w-20">IGST (%)</th>
+        )}
+        <th className="border border-black p-2 w-24">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {invoiceData.items.map((item, index) => {
+        // Filter products for this specific row based on search term
+        const filteredProducts = products.filter(product =>
+          product.productname.toLowerCase().includes(
+            (item.productSearchTerm || '').toLowerCase()
+          )
+        );
 
-          {validationErrors.items && (
-            <div className="error-message mb-2">{validationErrors.items}</div>
-          )}
-          <table className="min-w-full border border-black">
-            <thead>
-              <tr className="">
-                <th className="border border-black p-2 w-12">S.No</th>
-                <th className="border border-black p-2 w-1/5">Product Name</th>
-                <th className="border border-black p-2 w-1/4">Description</th>
-                <th className="border border-black p-2 w-32">Units</th>
-                <th className="border border-black p-2 w-20">Rate</th>
-                <th className="border border-black p-2 w-20">Quantity</th>
-                {isDelhiSupplier ? (
-                  <>
-                    <th className="border border-black p-2 w-20">CGST (%)</th>
-                    <th className="border border-black p-2 w-20">SGST (%)</th>
-                  </>
-                ) : (
-                  <th className="border border-black p-2 w-20">IGST (%)</th>
+        return (
+          <tr key={item.id}>
+            <td className="border border-black p-2 text-center">{index + 1}</td>
+            
+            {/* ItemCode with prefix */}
+          <td className="border border-black p-2">
+  <div className="relative">
+    <div className="flex items-center">
+      <span className="bg-gray-100 px-2 py-1">RM00</span>
+      <input
+        type="text"
+        value={(item.itemcode || "RM00").replace('RM00', '')}
+        onChange={(e) => {
+          const newCode = `RM00${e.target.value}`;
+          handleItemChange(index, "itemcode", newCode);
+          
+          // Auto-fill when exact match found
+          if (e.target.value.length >= 2) {
+            const foundProduct = products.find(p => 
+              p.itemcode.toLowerCase() === newCode.toLowerCase()
+            );
+            if (foundProduct) {
+              handleItemChange(index, "productname", foundProduct.productname);
+              handleItemChange(index, "description", foundProduct.description);
+              handleItemChange(index, "productSearchTerm", ""); // Clear search term
+            }
+          }
+        }}
+        placeholder="29"
+        className={`w-full border-none focus:outline-none text-center ${
+          validationErrors[`items[${index}].itemcode`] ? "error-input" : ""
+        }`}
+        required
+      />
+    </div>
+    {validationErrors[`items[${index}].itemcode`] && (
+      <div className="error-message text-center">
+        {validationErrors[`items[${index}].itemcode`]}
+      </div>
+    )}
+  </div>
+</td>
+
+            {/* Product Name with search dropdown */}
+            <td className="border border-black p-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={item.productSearchTerm || ''}
+                  onChange={(e) => {
+                    handleItemChange(index, "productSearchTerm", e.target.value);
+                    // Clear product if search term changes
+                    if (e.target.value === "") {
+                      handleItemChange(index, "productname", "");
+                    }
+                  }}
+                  placeholder="Search by name..."
+                  className={`w-full border-none focus:outline-none text-center mb-1 ${
+                    validationErrors[`items[${index}].productname`] ? "error-input" : ""
+                  }`}
+                />
+                <select
+                  value={item.productname}
+                  onChange={(e) => {
+                    const selectedProduct = products.find(
+                      (p) => p.productname === e.target.value
+                    );
+                    if (selectedProduct) {
+                      handleItemChange(index, "productname", selectedProduct.productname);
+                      handleItemChange(index, "description", selectedProduct.description);
+                      handleItemChange(index, "itemcode", selectedProduct.itemcode);
+                      handleItemChange(index, "productSearchTerm", ""); // Clear search term
+                    }
+                  }}
+                  className={`w-full border-none focus:outline-none text-center ${
+                    validationErrors[`items[${index}].productname`] ? "error-input" : ""
+                  }`}
+                  required
+                >
+                  <option value="" disabled>
+                    {filteredProducts.length === 0 ? "No matching products" : "Select Product"}
+                  </option>
+                  {filteredProducts.map((product) => (
+                    <option key={product.id} value={product.productname}>
+                      {product.productname}
+                    </option>
+                  ))}
+                </select>
+                {validationErrors[`items[${index}].productname`] && (
+                  <div className="error-message">
+                    {validationErrors[`items[${index}].productname`]}
+                  </div>
                 )}
-                <th className="border border-black p-2 w-32">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items.map((item, index) => (
-                <tr key={item.id}>
-                  <td className="border border-black p-2">{index + 1}</td>
-                  <td className="border border-black p-2">
-                    <select
-                      value={item.productname}
-                      onChange={(e) => {
-                        const selectedProduct = products.find(
-                          (p) => p.productname === e.target.value
-                        );
-                        handleItemChange(index, "productname", e.target.value);
-                        if (selectedProduct) {
-                          handleItemChange(
-                            index,
-                            "description",
-                            selectedProduct.description
-                          );
-                        }
-                      }}
-                      className={`w-full border-none focus:outline-none text-center text-black ${
-                        validationErrors[`items[${index}].productname`]
-                          ? "error-input"
-                          : ""
-                      }`}
-                      required
-                    >
-                      <option value="" disabled>
-                        Select Product
-                      </option>
-                      {products.map((product) => (
-                        <option key={product.id} value={product.productname}>
-                          {product.productname}
-                        </option>
-                      ))}
-                    </select>
-                    {validationErrors[`items[${index}].productname`] && (
-                      <div className="error-message">
-                        {validationErrors[`items[${index}].productname`]}
-                      </div>
-                    )}
-                  </td>
-                  <td className="border border-black p-2">
-                    <input
-                      type="text"
-                      value={item.description}
-                      onChange={(e) =>
-                        handleItemChange(index, "description", e.target.value)
-                      }
-                      className="w-full border-none focus:outline-none text-center text-black"
-                      readOnly={!!item.productname}
-                    />
-                  </td>
-                  <td className="border border-black p-2">
-                    <select
-                      value={item.units}
-                      onChange={(e) =>
-                        handleItemChange(index, "units", e.target.value)
-                      }
-                      className={`w-full border-none focus:outline-none text-center text-black ${
-                        validationErrors[`items[${index}].units`]
-                          ? "error-input"
-                          : ""
-                      }`}
-                      required
-                    >
-                      <option value="" disabled>
-                        Select Unit
-                      </option>
-                      <option value="kg">Kg</option>
-                      <option value="pcs">Pcs</option>
-                      <option value="numbers">Numbers</option>
-                    </select>
-                    {validationErrors[`items[${index}].units`] && (
-                      <div className="error-message">
-                        {validationErrors[`items[${index}].units`]}
-                      </div>
-                    )}
-                  </td>
-                  <td className="border border-black p-2">
-                    <input
-                      type="number"
-                      value={item.rate}
-                      onChange={(e) =>
-                        handleItemChange(
-                          index,
-                          "rate",
-                          parseFloat(e.target.value)
-                        )
-                      }
-                      className={`w-full border-none focus:outline-none text-center text-black ${
-                        validationErrors[`items[${index}].rate`]
-                          ? "error-input"
-                          : ""
-                      }`}
-                      min="0"
-                      step="0.01"
-                      required
-                    />
-                    {validationErrors[`items[${index}].rate`] && (
-                      <div className="error-message">
-                        {validationErrors[`items[${index}].rate`]}
-                      </div>
-                    )}
-                  </td>
-                  <td className="border border-black p-2">
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleItemChange(
-                          index,
-                          "quantity",
-                          parseInt(e.target.value)
-                        )
-                      }
-                      className={`w-full border-none focus:outline-none text-center text-black ${
-                        validationErrors[`items[${index}].quantity`]
-                          ? "error-input"
-                          : ""
-                      }`}
-                      min="0"
-                      required
-                    />
-                    {validationErrors[`items[${index}].quantity`] && (
-                      <div className="error-message">
-                        {validationErrors[`items[${index}].quantity`]}
-                      </div>
-                    )}
-                  </td>
-                  {isDelhiSupplier ? (
-                    <>
-                      <td className="border border-black p-2">
-                        <input
-                          type="number"
-                          value={item.cgst}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "cgst",
-                              parseFloat(e.target.value)
-                            )
-                          }
-                          className={`w-full border-none focus:outline-none text-center text-black ${
-                            validationErrors[`items[${index}].cgst`]
-                              ? "error-input"
-                              : ""
-                          }`}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          required
-                        />
-                        {validationErrors[`items[${index}].cgst`] && (
-                          <div className="error-message">
-                            {validationErrors[`items[${index}].cgst`]}
-                          </div>
-                        )}
-                      </td>
-                      <td className="border border-black p-2">
-                        <input
-                          type="number"
-                          value={item.sgst}
-                          onChange={(e) =>
-                            handleItemChange(
-                              index,
-                              "sgst",
-                              parseFloat(e.target.value)
-                            )
-                          }
-                          className={`w-full border-none focus:outline-none text-center text-black ${
-                            validationErrors[`items[${index}].sgst`]
-                              ? "error-input"
-                              : ""
-                          }`}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          required
-                        />
-                        {validationErrors[`items[${index}].sgst`] && (
-                          <div className="error-message">
-                            {validationErrors[`items[${index}].sgst`]}
-                          </div>
-                        )}
-                      </td>
-                    </>
-                  ) : (
-                    <td className="border border-black p-2">
-                      <input
-                        type="number"
-                        value={item.igst}
-                        onChange={(e) =>
-                          handleItemChange(
-                            index,
-                            "igst",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                        className={`w-full border-none focus:outline-none text-center text-black ${
-                          validationErrors[`items[${index}].igst`]
-                            ? "error-input"
-                            : ""
-                        }`}
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        required
-                      />
-                      {validationErrors[`items[${index}].igst`] && (
-                        <div className="error-message">
-                          {validationErrors[`items[${index}].igst`]}
-                        </div>
-                      )}
-                    </td>
-                  )}
-                  <td className="border border-black p-2 text-center">
-                    {item.total.toFixed(2)}
-                  </td>
-                  <td className="border border-black p-2 print:hidden hidden">
-                    <button
-                      onClick={() => removeItem(index)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </div>
+            </td>
 
+          {/* Description */}
+          <td className="border border-black p-2">
+            <input
+              type="text"
+              value={item.description}
+              onChange={(e) => handleItemChange(index, "description", e.target.value)}
+              className="w-full border-none focus:outline-none"
+            />
+          </td>
+
+          {/* Units */}
+          <td className="border border-black p-2">
+            <select
+              value={item.units}
+              onChange={(e) => handleItemChange(index, "units", e.target.value)}
+              className={`w-full border-none focus:outline-none ${
+                validationErrors[`items[${index}].units`] ? "error-input" : ""
+              }`}
+              required
+            >
+              <option value="" disabled>Select Unit</option>
+              <option value="kg">Kg</option>
+              <option value="pcs">Pcs</option>
+              <option value="numbers">Numbers</option>
+            </select>
+            {validationErrors[`items[${index}].units`] && (
+              <div className="error-message">
+                {validationErrors[`items[${index}].units`]}
+              </div>
+            )}
+          </td>
+
+          {/* Rate */}
+          <td className="border border-black p-2">
+            <input
+              type="number"
+              value={item.rate}
+              onChange={(e) => handleItemChange(index, "rate", parseFloat(e.target.value))}
+              className={`w-full border-none focus:outline-none text-center ${
+                validationErrors[`items[${index}].rate`] ? "error-input" : ""
+              }`}
+              min="0.01"
+              step="0.01"
+              required
+            />
+            {validationErrors[`items[${index}].rate`] && (
+              <div className="error-message">
+                {validationErrors[`items[${index}].rate`]}
+              </div>
+            )}
+          </td>
+
+          {/* Quantity */}
+          <td className="border border-black p-2">
+            <input
+              type="number"
+              value={item.quantity}
+              onChange={(e) => handleItemChange(index, "quantity", parseInt(e.target.value))}
+              className={`w-full border-none focus:outline-none text-center ${
+                validationErrors[`items[${index}].quantity`] ? "error-input" : ""
+              }`}
+              min="1"
+              required
+            />
+            {validationErrors[`items[${index}].quantity`] && (
+              <div className="error-message">
+                {validationErrors[`items[${index}].quantity`]}
+              </div>
+            )}
+          </td>
+
+ {/* GST Fields */}
+{isDelhiSupplier ? (
+  <>
+    {/* CGST Dropdown */}
+    <td className="border border-black p-2">
+      <select
+        value={item.cgst}
+        onChange={(e) => handleItemChange(index, "cgst", parseFloat(e.target.value))}
+        className={`w-full border-none focus:outline-none text-center ${
+          validationErrors[`items[${index}].cgst`] ? "error-input" : ""
+        }`}
+        required
+      >
+        <option value="">Select</option>
+        {[0, 5, 12, 18, 28].map((rate) => (
+          <option key={rate} value={rate}>
+            {rate}%
+          </option>
+        ))}
+      </select>
+      {validationErrors[`items[${index}].cgst`] && (
+        <div className="error-message">
+          {validationErrors[`items[${index}].cgst`]}
+        </div>
+      )}
+    </td>
+
+    {/* SGST Dropdown */}
+    <td className="border border-black p-2">
+      <select
+        value={item.sgst}
+        onChange={(e) => handleItemChange(index, "sgst", parseFloat(e.target.value))}
+        className={`w-full border-none focus:outline-none text-center ${
+          validationErrors[`items[${index}].sgst`] ? "error-input" : ""
+        }`}
+        required
+      >
+        <option value="">Select</option>
+        {[0, 5, 12, 18, 28].map((rate) => (
+          <option key={rate} value={rate}>
+            {rate}%
+          </option>
+        ))}
+      </select>
+      {validationErrors[`items[${index}].sgst`] && (
+        <div className="error-message">
+          {validationErrors[`items[${index}].sgst`]}
+        </div>
+      )}
+    </td>
+  </>
+) : (
+  // IGST Dropdown
+  <td className="border border-black p-2">
+    <select
+      value={item.igst}
+      onChange={(e) => handleItemChange(index, "igst", parseFloat(e.target.value))}
+      className={`w-full border-none focus:outline-none text-center ${
+        validationErrors[`items[${index}].igst`] ? "error-input" : ""
+      }`}
+      required
+    >
+      <option value="">Select</option>
+      {[0, 5, 12, 18, 28].map((rate) => (
+        <option key={rate} value={rate}>
+          {rate}%
+        </option>
+      ))}
+    </select>
+    {validationErrors[`items[${index}].igst`] && (
+      <div className="error-message">
+        {validationErrors[`items[${index}].igst`]}
+      </div>
+    )}
+  </td>
+)}
+
+
+          {/* Total */}
+          <td className="border border-black p-2 text-center">
+            {item.total.toFixed(2)}
+          </td>
+          
+          <td className="border border-black p-2 print:hidden hidden">
+            <button
+              onClick={() => removeItem(index)}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+            >
+              Remove
+            </button>
+          </td>
+            {/* ... rest of the row fields remain the same ... */}
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
         <div className="flex flex justify-start border border-black p-1 -start">
-        <div className="font-bold">Total Amount: {Number(invoiceData.totalAmount || 0).toFixed(2)}</div>
+          <div className="font-bold">
+            Total Amount: {Number(invoiceData.totalAmount || 0).toFixed(2)}
+          </div>
         </div>
 
         <div className="border border-black flex items-center justify-start gap-4 ">
@@ -1363,79 +1455,98 @@ const EditInvoice = () => {
               {validationErrors.preparedBySignature}
             </div>
           )}
-        {/* Prepared By Signature */}
-<div className="signature-container text-center flex flex-col items-center">
-  <div className="flex items-center gap-2">
-    <div className="mb-2 font-bold w-24 text-right">Prepared By:</div>
-    <div className="signature-image-wrapper border border-none flex items-center justify-center" 
-        style={{ width: "7cm", height: "3cm" }} >
-                  {invoiceData.preparedBySignature && (
-  <img
-    src={`${import.meta.env.VITE_API_BASE_URL}/signatures/${invoiceData.preparedBySignature.split('/').pop()}`}
-    alt="Prepared By Signature"
-    className="w-full h-full object-contain"
-    onError={(e) => {
-      e.target.onerror = null; 
-      e.target.src = '/placeholder-signature.png';
-    }}
-  />
-)}
-    </div>
-  </div>
-</div>
+          {/* Prepared By Signature */}
+          <div className="signature-container text-center flex flex-col items-center">
+            <div className="flex items-center gap-2">
+              <div className="mb-2 font-bold w-24 text-right">Prepared By:</div>
+              <div
+                className="signature-image-wrapper border border-none flex items-center justify-center"
+                style={{ width: "7cm", height: "3cm" }}
+              >
+                {invoiceData.preparedBySignature && (
+                  <img
+                    src={`${
+                      import.meta.env.VITE_API_BASE_URL
+                    }/signatures/${invoiceData.preparedBySignature
+                      .split("/")
+                      .pop()}`}
+                    alt="Prepared By Signature"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder-signature.png";
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
 
           {validationErrors.verifiedBySignature && (
             <div className="text-red-500 text-sm text-center mb-2 col-span-3">
               {validationErrors.verifiedBySignature}
             </div>
           )}
-         {/* Verified By Signature */}
-<div className="signature-container text-center flex flex-col items-center">
-  <div className="flex items-center gap-2">
-    <div className="mb-2 font-bold w-24 text-right">Verified By:</div>
-    <div className="signature-image-wrapper border border-none flex items-center justify-center" 
-          style={{ width: "7cm", height: "3cm" }} >
-                  {invoiceData.verifiedBySignature && (
-  <img
-    src={`${import.meta.env.VITE_API_BASE_URL}/signatures/${invoiceData.verifiedBySignature.split('/').pop()}`}
-    alt="Verified By Signature"
-    className="w-full h-full object-contain"
-    onError={(e) => {
-      e.target.onerror = null; 
-      e.target.src = '/placeholder-signature.png';
-    }}
-  />
-)}
-     
-    </div>
-  </div>
-</div>
+          {/* Verified By Signature */}
+          <div className="signature-container text-center flex flex-col items-center">
+            <div className="flex items-center gap-2">
+              <div className="mb-2 font-bold w-24 text-right">Verified By:</div>
+              <div
+                className="signature-image-wrapper border border-none flex items-center justify-center"
+                style={{ width: "7cm", height: "3cm" }}
+              >
+                {invoiceData.verifiedBySignature && (
+                  <img
+                    src={`${
+                      import.meta.env.VITE_API_BASE_URL
+                    }/signatures/${invoiceData.verifiedBySignature
+                      .split("/")
+                      .pop()}`}
+                    alt="Verified By Signature"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder-signature.png";
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
 
           {validationErrors.authorizedSignature && (
             <div className="text-red-500 text-sm text-center mb-2 col-span-3">
               {validationErrors.authorizedSignature}
             </div>
           )}
-        {/* Authorized Signature */}
-<div className="signature-container text-center flex flex-col items-center">
-  <div className="flex items-center gap-2">
-    <div className="mb-2 font-bold w-24 text-right">Authorized By:</div>
-    <div className="signature-image-wrapper border border-none flex items-center justify-center" 
-         style={{ width: "7cm", height: "3cm" }}>
-         {invoiceData.authorizedSignature && (
-  <img
-    src={`${import.meta.env.VITE_API_BASE_URL}/signatures/${invoiceData.authorizedSignature.split('/').pop()}`}
-    alt="Authorized Signature"
-    className="w-full h-full object-contain"
-    onError={(e) => {
-      e.target.onerror = null; 
-      e.target.src = '/placeholder-signature.png';
-    }}
-  />
-)}
-    </div>
-  </div>
-</div>
+          {/* Authorized Signature */}
+          <div className="signature-container text-center flex flex-col items-center">
+            <div className="flex items-center gap-2">
+              <div className="mb-2 font-bold w-24 text-right">
+                Authorized By:
+              </div>
+              <div
+                className="signature-image-wrapper border border-none flex items-center justify-center"
+                style={{ width: "7cm", height: "3cm" }}
+              >
+                {invoiceData.authorizedSignature && (
+                  <img
+                    src={`${
+                      import.meta.env.VITE_API_BASE_URL
+                    }/signatures/${invoiceData.authorizedSignature
+                      .split("/")
+                      .pop()}`}
+                    alt="Authorized Signature"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder-signature.png";
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div className="all-button flex justify-center items-center mt-4 mb-4 print:hidden">

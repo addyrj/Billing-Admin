@@ -4,14 +4,23 @@ const companyController = require("../controllers/companyController");
 const { authenticateToken, requireRole } = require("../middleware/authenticateToken");
 const db = require('../config/db');
 const validateCompanyData = require("../middleware/validateCompany"); 
+const paymentUpload = require("../config/paymentUpload");
 
-// Apply authentication to all company routes
 router.use(authenticateToken);
-
 
 // Create company - accessible to salesuser and adminsales
 router.post("/companies", 
-  requireRole(['salesuser', 'adminsales']), 
+  authenticateToken,
+  requireRole(['salesuser', 'adminsales']),
+  (req, res, next) => {
+    // Only use multer for multipart requests
+    if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+      paymentUpload(req, res, next);
+    } else {
+      next();
+    }
+  },
+  validateCompanyData,
   companyController.createCompany
 );
 
@@ -38,7 +47,7 @@ router.get("/partner/dashboard",
 // Update company route with validation
 router.put("/companies/:id", 
   requireRole(['salesuser', 'adminsales']),
-  validateCompanyData, // Now properly imported
+  validateCompanyData, // This should use updateCompanySchema for PUT requests
   companyController.updateCompanyByIdWithOwnership
 );
 // Delete company - only adminsales

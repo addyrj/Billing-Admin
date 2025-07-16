@@ -253,12 +253,16 @@ const InvoiceCreate = () => {
         errors[`items[${index}].quantity`] = "Valid quantity is required";
       }
       if (isDelhiSupplier) {
-        if (!item.cgst || item.cgst < 0)
+        if (item.cgst === undefined || item.cgst === null || item.cgst < 0) {
           errors[`items[${index}].cgst`] = "Valid CGST is required";
-        if (!item.sgst || item.sgst < 0)
+        }
+        if (item.sgst === undefined || item.sgst === null || item.sgst < 0) {
           errors[`items[${index}].sgst`] = "Valid SGST is required";
-      } else if (!item.igst || item.igst < 0) {
-        errors[`items[${index}].igst`] = "Valid IGST is required";
+        }
+      } else {
+        if (item.igst === undefined || item.igst === null || item.igst < 0) {
+          errors[`items[${index}].igst`] = "Valid IGST is required";
+        }
       }
     });
 
@@ -425,48 +429,48 @@ const InvoiceCreate = () => {
       />
     );
   }
-const handleSignatureChange = (e, setter, fieldName) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const handleSignatureChange = (e, setter, fieldName) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  // Check file size (2MB limit)
-  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
-  if (file.size > MAX_SIZE) {
-    setValidationErrors((prev) => ({
-      ...prev,
-      [fieldName]: "Image size should be less than 2MB"
-    }));
-    return;
-  }
+    // Check file size (2MB limit)
+    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+    if (file.size > MAX_SIZE) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [fieldName]: "Image size should be less than 2MB",
+      }));
+      return;
+    }
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    // Check image dimensions
-    const img = new Image();
-    img.onload = function() {
-      const MAX_WIDTH = 700;
-      const MAX_HEIGHT = 500;
-      if (this.width > MAX_WIDTH || this.height > MAX_HEIGHT) {
-        setValidationErrors((prev) => ({
-          ...prev,
-          [fieldName]: `Image dimensions should be less than ${MAX_WIDTH}x${MAX_HEIGHT}px`
-        }));
-        return;
-      }
-      
-      setter(event.target.result);
-      if (validationErrors[fieldName]) {
-        setValidationErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[fieldName];
-          return newErrors;
-        });
-      }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      // Check image dimensions
+      const img = new Image();
+      img.onload = function () {
+        const MAX_WIDTH = 700;
+        const MAX_HEIGHT = 500;
+        if (this.width > MAX_WIDTH || this.height > MAX_HEIGHT) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            [fieldName]: `Image dimensions should be less than ${MAX_WIDTH}x${MAX_HEIGHT}px`,
+          }));
+          return;
+        }
+
+        setter(event.target.result);
+        if (validationErrors[fieldName]) {
+          setValidationErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[fieldName];
+            return newErrors;
+          });
+        }
+      };
+      img.src = event.target.result;
     };
-    img.src = event.target.result;
+    reader.readAsDataURL(file);
   };
-  reader.readAsDataURL(file);
-};
 
   const dataURLtoBlob = (dataURL) => {
     const arr = dataURL.split(",");
@@ -716,7 +720,6 @@ const handleSignatureChange = (e, setter, fieldName) => {
               </div>
             )}
           </div>
-          <div></div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -848,7 +851,7 @@ const handleSignatureChange = (e, setter, fieldName) => {
                     )}
                   </td>
                 </tr>
-             
+
                 <tr className="border-b border-black">
                   <td className="p-1 font-semibold">Payment Terms:</td>
                   <td className="p-1 font-semibold">
@@ -911,8 +914,7 @@ const handleSignatureChange = (e, setter, fieldName) => {
           <div className="border border-black">
             <table className="w-full">
               <tbody>
-             
-                   <tr className="border-b border-black">
+                <tr className="border-b border-black">
                   <td className="p-1 font-semibold">Supplier Offer Date:</td>
                   <td className="p-1 font-semibold">
                     <input
@@ -1143,304 +1145,393 @@ const handleSignatureChange = (e, setter, fieldName) => {
           </div>
         </div>
 
-<div className="overflow-x-auto">
-  <div className="flex justify-between items-center mb-1">
-    <div className="text-lg font-bold">Material and Pricing</div>
-    <div className="flex gap-2">
-      <button
-        onClick={addItem}
-        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Add Material
-      </button>
-      <button
-        onClick={() => removeItem(0)}
-        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Remove Material
-      </button>
-    </div>
-  </div>
-
-  {validationErrors.items && (
-    <div className="error-message mb-2">{validationErrors.items}</div>
-  )}
-  
-  <table className="min-w-full border border-black">
-    <thead>
-      <tr>
-        <th className="border border-black p-2 w-12">S.No</th>
-        <th className="border border-black p-2 w-24">ItemCode</th>
-        <th className="border border-black p-2 w-1/4">Product Name</th>
-        <th className="border border-black p-2 w-1/3">Description</th>
-        <th className="border border-black p-2 w-20">Units</th>
-        <th className="border border-black p-2 w-20">Rate</th>
-        <th className="border border-black p-2 w-20">Quantity</th>
-        {isDelhiSupplier ? (
-          <>
-            <th className="border border-black p-2 w-20">CGST (%)</th>
-            <th className="border border-black p-2 w-20">SGST (%)</th>
-          </>
-        ) : (
-          <th className="border border-black p-2 w-20">IGST (%)</th>
-        )}
-        <th className="border border-black p-2 w-24">Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      {invoiceData.items.map((item, index) => (
-        <tr key={item.id}>
-          <td className="border border-black p-2 text-center">{index + 1}</td>
-          
-          {/* ItemCode with prefix */}
-          <td className="border border-black p-2">
-            <div className="relative">
-              <div className="flex items-center">
-                <span className="bg-gray-100 px-2 py-1">RM00</span>
-                <input
-                  type="text"
-                  value={item.itemcode.replace('RM00', '')}
-                  onChange={(e) => {
-                    const newCode = `RM00${e.target.value}`;
-                    handleItemChange(index, "itemcode", newCode);
-                    
-                    // Auto-fill when exact match found
-                    if (e.target.value.length >= 2) {
-                      const foundProduct = products.find(p => 
-                        p.itemcode.toLowerCase() === newCode.toLowerCase()
-                      );
-                      if (foundProduct) {
-                        handleItemChange(index, "productname", foundProduct.productname);
-                        handleItemChange(index, "description", foundProduct.description);
-                      }
-                    }
-                  }}
-                  placeholder="00"
-                  className={`w-full border-none focus:outline-none text-center ${
-                    validationErrors[`items[${index}].itemcode`] ? "error-input" : ""
-                  }`}
-                  required
-                />
-              </div>
-              {validationErrors[`items[${index}].itemcode`] && (
-                <div className="error-message text-center">
-                  {validationErrors[`items[${index}].itemcode`]}
-                </div>
-              )}
-            </div>
-          </td>
-
-          {/* Product Name with search dropdown */}
-          <td className="border border-black p-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={productSearchTerm}
-                onChange={(e) => setProductSearchTerm(e.target.value)}
-                placeholder="Search by name..."
-                className={`w-full border-none focus:outline-none text-center mb-1 ${
-                  validationErrors[`items[${index}].productname`] ? "error-input" : ""
-                }`}
-              />
-              <select
-                value={item.productname}
-                onChange={(e) => {
-                  const selectedProduct = products.find(
-                    (p) => p.productname === e.target.value
-                  );
-                  if (selectedProduct) {
-                    handleItemChange(index, "productname", selectedProduct.productname);
-                    handleItemChange(index, "description", selectedProduct.description);
-                    handleItemChange(index, "itemcode", selectedProduct.itemcode);
-                  }
-                  setProductSearchTerm("");
-                }}
-                className={`w-full border-none focus:outline-none text-center ${
-                  validationErrors[`items[${index}].productname`] ? "error-input" : ""
-                }`}
-                required
+        <div className="overflow-x-auto">
+          <div className="flex justify-between items-center mb-1">
+            <div className="text-lg font-bold">Material and Pricing</div>
+            <div className="flex gap-2">
+              <button
+                onClick={addItem}
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
               >
-                <option value="" disabled>
-                  {filteredProducts.length === 0 ? "No matching products" : "Select Product"}
-                </option>
-                {filteredProducts.map((product) => (
-                  <option key={product.id} value={product.productname}>
-                    {product.productname}
-                  </option>
-                ))}
-              </select>
-              {validationErrors[`items[${index}].productname`] && (
-                <div className="error-message">
-                  {validationErrors[`items[${index}].productname`]}
-                </div>
-              )}
+                Add Material
+              </button>
+              <button
+                onClick={() => removeItem(0)}
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Remove Material
+              </button>
             </div>
-          </td>
+          </div>
 
-          {/* Description */}
-          <td className="border border-black p-2">
-            <input
-              type="text"
-              value={item.description}
-              onChange={(e) => handleItemChange(index, "description", e.target.value)}
-              className="w-full border-none focus:outline-none"
-            />
-          </td>
-
-          {/* Units */}
-          <td className="border border-black p-2">
-            <select
-              value={item.units}
-              onChange={(e) => handleItemChange(index, "units", e.target.value)}
-              className={`w-full border-none focus:outline-none ${
-                validationErrors[`items[${index}].units`] ? "error-input" : ""
-              }`}
-              required
-            >
-              <option value="" disabled>Select Unit</option>
-              <option value="kg">Kg</option>
-              <option value="pcs">Pcs</option>
-              <option value="numbers">Numbers</option>
-            </select>
-            {validationErrors[`items[${index}].units`] && (
-              <div className="error-message">
-                {validationErrors[`items[${index}].units`]}
-              </div>
-            )}
-          </td>
-
-          {/* Rate */}
-          <td className="border border-black p-2">
-            <input
-              type="number"
-              value={item.rate}
-              onChange={(e) => handleItemChange(index, "rate", parseFloat(e.target.value))}
-              className={`w-full border-none focus:outline-none text-center ${
-                validationErrors[`items[${index}].rate`] ? "error-input" : ""
-              }`}
-              min="0.01"
-              step="0.01"
-              required
-            />
-            {validationErrors[`items[${index}].rate`] && (
-              <div className="error-message">
-                {validationErrors[`items[${index}].rate`]}
-              </div>
-            )}
-          </td>
-
-          {/* Quantity */}
-          <td className="border border-black p-2">
-            <input
-              type="number"
-              value={item.quantity}
-              onChange={(e) => handleItemChange(index, "quantity", parseInt(e.target.value))}
-              className={`w-full border-none focus:outline-none text-center ${
-                validationErrors[`items[${index}].quantity`] ? "error-input" : ""
-              }`}
-              min="1"
-              required
-            />
-            {validationErrors[`items[${index}].quantity`] && (
-              <div className="error-message">
-                {validationErrors[`items[${index}].quantity`]}
-              </div>
-            )}
-          </td>
-
-          {/* GST Fields */}
-          {isDelhiSupplier ? (
-            <>
-              <td className="border border-black p-2">
-                <input
-                  type="number"
-                  value={item.cgst}
-                  onChange={(e) => handleItemChange(index, "cgst", parseFloat(e.target.value))}
-                  className={`w-full border-none focus:outline-none text-center ${
-                    validationErrors[`items[${index}].cgst`] ? "error-input" : ""
-                  }`}
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  required
-                />
-                {validationErrors[`items[${index}].cgst`] && (
-                  <div className="error-message">
-                    {validationErrors[`items[${index}].cgst`]}
-                  </div>
-                )}
-              </td>
-              <td className="border border-black p-2">
-                <input
-                  type="number"
-                  value={item.sgst}
-                  onChange={(e) => handleItemChange(index, "sgst", parseFloat(e.target.value))}
-                  className={`w-full border-none focus:outline-none text-center ${
-                    validationErrors[`items[${index}].sgst`] ? "error-input" : ""
-                  }`}
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  required
-                />
-                {validationErrors[`items[${index}].sgst`] && (
-                  <div className="error-message">
-                    {validationErrors[`items[${index}].sgst`]}
-                  </div>
-                )}
-              </td>
-            </>
-          ) : (
-            <td className="border border-black p-2">
-              <input
-                type="number"
-                value={item.igst}
-                onChange={(e) => handleItemChange(index, "igst", parseFloat(e.target.value))}
-                className={`w-full border-none focus:outline-none text-center ${
-                  validationErrors[`items[${index}].igst`] ? "error-input" : ""
-                }`}
-                min="0"
-                max="100"
-                step="0.01"
-                required
-              />
-              {validationErrors[`items[${index}].igst`] && (
-                <div className="error-message">
-                  {validationErrors[`items[${index}].igst`]}
-                </div>
-              )}
-            </td>
+          {validationErrors.items && (
+            <div className="error-message mb-2">{validationErrors.items}</div>
           )}
 
-          {/* Total */}
-          <td className="border border-black p-2 text-center">
-            {item.total.toFixed(2)}
-          </td>
-          
-          <td className="border border-black p-2 print:hidden hidden">
-            <button
-              onClick={() => removeItem(index)}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-            >
-              Remove
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+          <table className="min-w-full border border-black">
+            <thead>
+              <tr>
+                <th className="border border-black p-2 w-12">S.No</th>
+                <th className="border border-black p-2 w-24">ItemCode</th>
+                <th className="border border-black p-2 w-1/4">Product Name</th>
+                <th className="border border-black p-2 w-1/3">Description</th>
+                <th className="border border-black p-2 w-20">Units</th>
+                <th className="border border-black p-2 w-20">Rate</th>
+                <th className="border border-black p-2 w-20">Quantity</th>
+                {isDelhiSupplier ? (
+                  <>
+                    <th className="border border-black p-2 w-20">CGST (%)</th>
+                    <th className="border border-black p-2 w-20">SGST (%)</th>
+                  </>
+                ) : (
+                  <th className="border border-black p-2 w-20">IGST (%)</th>
+                )}
+                <th className="border border-black p-2 w-24">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoiceData.items.map((item, index) => (
+                <tr key={item.id}>
+                  <td className="border border-black p-2 text-center">
+                    {index + 1}
+                  </td>
 
-<div className="flex justify-start border border-black p-1">
-  <div className="font-bold">
-    Total Amount: {(invoiceData.totalAmount || 0).toFixed(2)}
-  </div>
-</div>
+                  {/* ItemCode with prefix */}
+                  <td className="border border-black p-2">
+                    <div className="relative">
+                      <div className="flex items-center">
+                        <span className="bg-gray-100 px-2 py-1">RM00</span>
+                        <input
+                          type="text"
+                          value={item.itemcode.replace("RM00", "")}
+                          onChange={(e) => {
+                            const newCode = `RM00${e.target.value}`;
+                            handleItemChange(index, "itemcode", newCode);
 
-<div className="border border-black flex items-center justify-start gap-4 p-2">
-  <div className="font-semibold">Amount in Words:</div>
-  <div className="font-bold">{invoiceData.amountInWords}</div>
-</div>
+                            // Auto-fill when exact match found
+                            if (e.target.value.length >= 2) {
+                              const foundProduct = products.find(
+                                (p) =>
+                                  p.itemcode.toLowerCase() ===
+                                  newCode.toLowerCase()
+                              );
+                              if (foundProduct) {
+                                handleItemChange(
+                                  index,
+                                  "productname",
+                                  foundProduct.productname
+                                );
+                                handleItemChange(
+                                  index,
+                                  "description",
+                                  foundProduct.description
+                                );
+                              }
+                            }
+                          }}
+                          placeholder="00"
+                          className={`w-full border-none focus:outline-none text-center ${
+                            validationErrors[`items[${index}].itemcode`]
+                              ? "error-input"
+                              : ""
+                          }`}
+                          required
+                        />
+                      </div>
+                      {validationErrors[`items[${index}].itemcode`] && (
+                        <div className="error-message text-center">
+                          {validationErrors[`items[${index}].itemcode`]}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Product Name with search dropdown */}
+                  <td className="border border-black p-2">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={productSearchTerm}
+                        onChange={(e) => setProductSearchTerm(e.target.value)}
+                        placeholder="Search by name..."
+                        className={`w-full border-none focus:outline-none text-center mb-1 ${
+                          validationErrors[`items[${index}].productname`]
+                            ? "error-input"
+                            : ""
+                        }`}
+                      />
+                      <select
+                        value={item.productname}
+                        onChange={(e) => {
+                          const selectedProduct = products.find(
+                            (p) => p.productname === e.target.value
+                          );
+                          if (selectedProduct) {
+                            handleItemChange(
+                              index,
+                              "productname",
+                              selectedProduct.productname
+                            );
+                            handleItemChange(
+                              index,
+                              "description",
+                              selectedProduct.description
+                            );
+                            handleItemChange(
+                              index,
+                              "itemcode",
+                              selectedProduct.itemcode
+                            );
+                          }
+                          setProductSearchTerm("");
+                        }}
+                        className={`w-full border-none focus:outline-none text-center ${
+                          validationErrors[`items[${index}].productname`]
+                            ? "error-input"
+                            : ""
+                        }`}
+                        required
+                      >
+                        <option value="" disabled>
+                          {filteredProducts.length === 0
+                            ? "No matching products"
+                            : "Select Product"}
+                        </option>
+                        {filteredProducts.map((product) => (
+                          <option key={product.id} value={product.productname}>
+                            {product.productname}
+                          </option>
+                        ))}
+                      </select>
+                      {validationErrors[`items[${index}].productname`] && (
+                        <div className="error-message">
+                          {validationErrors[`items[${index}].productname`]}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Description */}
+                  <td className="border border-black p-2">
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={(e) =>
+                        handleItemChange(index, "description", e.target.value)
+                      }
+                      className="w-full border-none focus:outline-none"
+                    />
+                  </td>
+
+                  {/* Units */}
+                  <td className="border border-black p-2">
+                    <select
+                      value={item.units}
+                      onChange={(e) =>
+                        handleItemChange(index, "units", e.target.value)
+                      }
+                      className={`w-full border-none focus:outline-none ${
+                        validationErrors[`items[${index}].units`]
+                          ? "error-input"
+                          : ""
+                      }`}
+                      required
+                    >
+                      <option value="" disabled>
+                        Select Unit
+                      </option>
+                      <option value="kg">Kg</option>
+                      <option value="pcs">Pcs</option>
+                      <option value="numbers">Numbers</option>
+                    </select>
+                    {validationErrors[`items[${index}].units`] && (
+                      <div className="error-message">
+                        {validationErrors[`items[${index}].units`]}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Rate */}
+                  <td className="border border-black p-2">
+                    <input
+                      type="number"
+                      value={item.rate}
+                      onChange={(e) =>
+                        handleItemChange(
+                          index,
+                          "rate",
+                          parseFloat(e.target.value)
+                        )
+                      }
+                      className={`w-full border-none focus:outline-none text-center ${
+                        validationErrors[`items[${index}].rate`]
+                          ? "error-input"
+                          : ""
+                      }`}
+                      min="0.01"
+                      step="0.01"
+                      required
+                    />
+                    {validationErrors[`items[${index}].rate`] && (
+                      <div className="error-message">
+                        {validationErrors[`items[${index}].rate`]}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Quantity */}
+                  <td className="border border-black p-2">
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleItemChange(
+                          index,
+                          "quantity",
+                          parseInt(e.target.value)
+                        )
+                      }
+                      className={`w-full border-none focus:outline-none text-center ${
+                        validationErrors[`items[${index}].quantity`]
+                          ? "error-input"
+                          : ""
+                      }`}
+                      min="1"
+                      required
+                    />
+                    {validationErrors[`items[${index}].quantity`] && (
+                      <div className="error-message">
+                        {validationErrors[`items[${index}].quantity`]}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* GST Fields */}
+                  {isDelhiSupplier ? (
+                    <>
+                      <td className="border border-black p-2">
+                        <select
+                          value={item.cgst}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "cgst",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                          className={`w-full border-none focus:outline-none text-center ${
+                            validationErrors[`items[${index}].cgst`]
+                              ? "error-input"
+                              : ""
+                          }`}
+                          required
+                        >
+                          <option value="">Select</option>
+                          {[0, 5, 12, 18, 28].map((rate) => (
+                            <option key={rate} value={rate}>
+                              {rate}%
+                            </option>
+                          ))}
+                        </select>
+                        {validationErrors[`items[${index}].cgst`] && (
+                          <div className="error-message">
+                            {validationErrors[`items[${index}].cgst`]}
+                          </div>
+                        )}
+                      </td>
+                      <td className="border border-black p-2">
+                        <select
+                          value={item.sgst}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "sgst",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                          className={`w-full border-none focus:outline-none text-center ${
+                            validationErrors[`items[${index}].sgst`]
+                              ? "error-input"
+                              : ""
+                          }`}
+                          required
+                        >
+                          <option value="">Select</option>
+                          {[0, 5, 12, 18, 28].map((rate) => (
+                            <option key={rate} value={rate}>
+                              {rate}%
+                            </option>
+                          ))}
+                        </select>
+                        {validationErrors[`items[${index}].sgst`] && (
+                          <div className="error-message">
+                            {validationErrors[`items[${index}].sgst`]}
+                          </div>
+                        )}
+                      </td>
+                    </>
+                  ) : (
+                    <td className="border border-black p-2">
+                      <select
+                        value={item.igst}
+                        onChange={(e) =>
+                          handleItemChange(
+                            index,
+                            "igst",
+                            parseFloat(e.target.value)
+                          )
+                        }
+                        className={`w-full border-none focus:outline-none text-center ${
+                          validationErrors[`items[${index}].igst`]
+                            ? "error-input"
+                            : ""
+                        }`}
+                        required
+                      >
+                        <option value="">Select</option>
+                        {[0, 5, 12, 18, 28].map((rate) => (
+                          <option key={rate} value={rate}>
+                            {rate}%
+                          </option>
+                        ))}
+                      </select>
+                      {validationErrors[`items[${index}].igst`] && (
+                        <div className="error-message">
+                          {validationErrors[`items[${index}].igst`]}
+                        </div>
+                      )}
+                    </td>
+                  )}
+
+                  {/* Total */}
+                  <td className="border border-black p-2 text-center">
+                    {item.total.toFixed(2)}
+                  </td>
+
+                  <td className="border border-black p-2 print:hidden hidden">
+                    <button
+                      onClick={() => removeItem(index)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex justify-start border border-black p-1">
+          <div className="font-bold">
+            Total Amount: {(invoiceData.totalAmount || 0).toFixed(2)}
+          </div>
+        </div>
+
+        <div className="border border-black flex items-center justify-start gap-4 p-2">
+          <div className="font-semibold">Amount in Words:</div>
+          <div className="font-bold">{invoiceData.amountInWords}</div>
+        </div>
 
         <div className="border border-black p-4">
           <div className="text-lg font-bold mb-1">Terms and Condition</div>
